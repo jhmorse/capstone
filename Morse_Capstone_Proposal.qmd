@@ -1,0 +1,129 @@
+---
+title: "Capstone Paper Proposal"
+author: "John Morse"
+bibliography: capstone.bib
+csl: american-political-science-association.csl
+link-citations: true
+
+papersize: letter
+
+margin-left: 1in
+margin-right: 1in
+margin-top: 1in
+margin-bottom: 1in
+cap-location: top
+
+format: 
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    linestretch: 2
+  html: default
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+\clearpage
+
+\raggedright
+
+\setlength{\parindent}{20pt}
+
+# Proposal
+
+For my research project, I am studying the relationship of student achievement in literacy with their enrollment in postsecondary education. My research topic for this project is related to the effectiveness of literacy programs in secondary schools and their impact on post-secondary education. In a much-cited 2012 article from the Annie E. Casey Foundation, Donald Hernandez argues that both early literacy skills and poverty directly impact high school graduation rates \[\@Hernadez2011\]. The basis of my research is that literacy has a cascading, or rather a building effect on students: early literacy leads to better results in later grades, which leads to better results after graduation. Reading ability and reading comprehension are the base level skills needed for student success in high school and beyond.
+
+Last year, the Washington State legislature cut funding to the Imagination Library program, an early literacy program. Although the Office of the Superintendent of Public Instruction (OSPI) has stepped in with discretionary funds to keep it running for the current school year, the future of the program is in question ([https://lynnwoodtimes.com/2025/06/26/ospi-imagination-library/ynnwood Times](https://lynnwoodtimes.com/2025/06/26/ospi-imagination-library/)). At the opposite end of the academic spectrum, accourding to the Education Research & Data Center (ERDC) for Washington State, the rate of enrollment in 4 year colleges has remained nearly flat over the past 10 years, while enrollment in 2-year colleges and technical schools has decreased by four percentage points. At the same time, ERDC reports rates of enrollment in college-prep English courses has dropped from 9% to 6% for 4-year college destined students and from 36% to 15% for 2-year students ([https://erdc.wa.gov/publications-and-reports/high-school-graduate-outcomes](#0)).
+
+With the decrease in enrollment, the Washington Student Achievement Council (WSAC) has set a goal that "70 percent of adults ages 25 to 44 should earn a postsecondary credential" (<https://wsac.wa.gov/strategic-action-plan>). In the 10 years ending in 2024, WSAC measured an 18% decrease in postsecondary enrollment (<https://wsac.wa.gov/sap-dashboard>).
+
+Washington state uses standardized tests provided by the Smarter Balanced Assessment Consortium (SBAC) to track student achievement in English Language Arts (ELA) and Mathematics. Tests are administered eight times in a student’s secondary schooling, from grades 3 to 11, excluding grade 9. Through test results, we can track the rate at which students are achieving expected literacy goals. These tests are given as part of normal schooling and are, therefore, representative of literacy achievement across all students, not just college-bound students. With literacy capability in secondary school strongly associated with college readiness, tracking literacy achievement through SBAC scores could be used as an indication of college enrollment.
+
+The question I am posing through this research is: **Do SBAC ELA achievement rates predict post-secondary enrollment rates?** I will use the results of standardized testing and a measurement of the rate at which students achieve scores at or above expected standards for their grade level. Through regression analysis, I will analyze these test results in respect to college enrollment rates for students at individual high schools or across school districts. A possible secondary question I am considering is whether SBAC ELA scores are more relevant to post-secondary enrollment than SBAC Math scores?
+
+A risk to this project is the possibility of introducing an ecological fallacy. Data is captured at the school and school district level, with additional data broken out by socioeconomic factors including income level and ethnicity. Additionally, SBAC scores from a single year (e.g. 11^th^ grade) may not be wholly representative of student achievement and readiness. To validate the robustness of the relationship between SBAC achievement scores and post-secondary enrollment, I intend to analyze multiple perspectives of standardized test scores:
+
+-   11^th^ grade SBAC scores, emphasizing the last school year in which tests are administered.
+
+-   Consolidated 10^th^ and 11^th^ grade scores to provide a broader view of student readiness as they move from high school to post-secondary education.
+
+-   Weighted scores across all grades, emphasizing later grades while considering a school district’s entire literacy achievement rates across grades.
+
+Due to an inability to accurately track student movement from elementary to middle to high school, weighted scores across grade levels will be measured and analyzed at a school district level. As the project progresses, and if time allows within the semester, I will also examine socioeconomic factors as possible control factors. Finally, the participation in remedial level English courses in the first year of college enrollment imply a student is not ready for college success. My analysis will attempt to control for this data as part of the regression analysis.
+
+# Annotated Bibliography
+
+The following annotations apply to the articles identified in the **References** section of this document.
+
+[@Cox2003]: An examination of university students entering college without the requisite literacy (reading comprehension and writing) skills to succeed. Students are identified based on test scores and grouped based on students who do not take a reading skills course, those who take a course but do not pass, and those that take a course and pass and/or get an exceptional grade (A). The authors conclude that under-prepared students are more likely to succeed in college if they have taken and passed a reading skills course. This research demonstrates the importance of literacy skills for first-year students in college and leverages data from a reading placement test to analyze student readiness.
+
+[@Fidalgo2014]: The authors analyze reading comprehension as a hybrid task that involves multiple activities including reading, comprehending, and writing. A common example is analyzing and summarizing an article after reading it. In the analysis, the authors compare students with and without reading difficulties to understand the comprehension process and the iterative cycles used to understand and write about a topic. Of most relevance in this study is the conclusion that reading comprehension strategies do not vary as children age. Students were studied at the primary and secondary level in Spain, where the primary level includes 5th and sixth grades, while the secondary level equates to US high school. This demonstrates a consistency in literacy activities across grades and may indicate achievement scores will stay consistent as a child ages.
+
+[@Graham2010]: A secondary analysis of survey results collected as part of a doctoral dissertation and subsequently delivered as part of a 2010 conference. The authors review and analyze the reading comprehension of first-year university students and compare against the general population in Canada as well as comparing within group by gender and by area of major study (arts, science, and business administration). Crucially, the authors determined no difference in reading comprehension from the Canadian population as a whole, indicating that literacy skills were not a factor in university enrollment. Applied broadly, universities looking to attract students may disregard literacy skills, potentially impacting student readiness and success in college.
+
+[@Hein2013]: A literature review highlighting indicators and predictors of student success, including success in reading and writing skills. Tracks primary predictors of success at multiple levels: elementary, middle school, high school, and post-graduation. Test scores, attendance, and GPA are included as primary indicators of success, while enrollment in advanced courses and social skills also contribute to success. Intended to support the design and implementation of programs by school policymakers toward improving student performance and outcomes. The authors point out the difficulty in relating early achievement in school to post-secondary success. However, this research does note a relationship between early literacy and standardized test scores, more specifically scores on college entrance testing (ACT and SAT). Additionally, higher scores on AP and IB exams are correlated with higher rates of college enrollment.
+
+[@Hernandez2011]: An overview of high school drop out rates linked to both literacy in third grade and poverty rates. As a link between early literacy skills and later secondary success, this article demonstrates the continuation of impact across grades as children get older. Third-grade reading assessments for the students used in this analysis are based on national scores collected through standardized testing including precursor testing to standard implemented through No Child Left Behind like SBAC.
+
+[@James2024]: In this analysis, the authors analyze the educational and employment outcomes of children identified with poor reading comprehension while in elementary school. This article recognizes the impact reading comprehension issues can have on long term outcomes, even when they are identified early in the child's education (e.g. 3rd or 4th grade). The analysis is a comparison of students identified as having low reading comprehension ability with students at or above expectations. Secondary school capability is linked to post-secondary success in both education and employment. The authors also look at assessment scores (SATs) as an outcome variable.
+
+[@Long2012]: An assessment of student test scores based on participation in advanced curriculum including Honors, Advanced Placement (AP), and other rigorous courses. The study focuses on Florida students graduating from high school in 2003. The study includes an examination of enrollment in 2-year or 4-year colleges after graduation and, as such, represents a similar analysis as proposed by my hypothesis. However, this study examines tests related to advanced and dual-credit courses such as Advanced Placement (AP) and Honors. Enrollment in ELA based advanced courses in high school demonstrated significant increases in college credits earned, grade point average, and the rate at which students earned a bachelor's degree.
+
+[@Ozek2025]: A study of the effects of placing students in remedial reading programs in school. Such programs can be beneficial to students to bring them up to reading standards as long as the student is not "tracked" into a remedial program, i.e. restricted to remedial classes across other subjects and as they advance in school. The article is included as a counterpoint to students that demonstrate higher literary achievement. Additionally, enrollment in remedial courses can indicate lowered literacy expectations for college admissions and could alter the influence of literacy achievement in secondary schools.
+
+[@Savolainen2008]: An analysis of students in Finland and the role of reading and spelling skills as those students pursued upper secondary education. Students, upon entering the upper secondary level of education, similar to high school in the US, have the choice of pursuing general education or vocational education. This article analyzes what role, if any, reading and spelling have on that choice and subsequent career choices. Literacy in lower grade levels is demonstrated to affect school choices in upper grade levels which, ultimately, affect post-secondary pursuits (college vs. vocational career). The relationship directly impacts college enrollment through a mid-level choice when entering the equivalent of high school.
+
+[@Talwar2022]: Examines mulitple facets of literacy: literacy skills (including vocabulary and reading comprehension), reading strategies, and reading motivation. The research analyzes how these multiple aspects of literacy affect academic reading and student success in college. The authors introduce a new framework for assessing literacy skills. Individual students were asked to complete a custom assessment for the purposes of the research. Outcomes demonstrated the direct impact of literacy skills on college success, indicating readiness obtained prior to college directly influences that success.
+
+# Data Sources
+
+My primary source of data will be CSV files made available at the Washington State Open Data Portal (<http://data.wa.gov>). As part of the Office of the Superintendant of Public Instruction (OSPI), Washington state began collecting extensive data about students starting with the 2014-15 school year. Note that several data sets have gaps during the 2019-20 and 2020-21 school years due to COVID. Most data is captured at the school and school district level, with additional breakouts based on socioeconomic attributes (e.g. ethnicity and income levels). For privacy, no data is captured at the individual student level.
+
+### Data Sources with Independent Variables
+
+This section identifies primary data sets that include independent variables and attributes used for this project. Note that many of the data sources also include rates broken down by demographic attributes.
+
+-   **Directory** - Washington School Directory: Primary source of School District and School Names. Used as a look-up table to standardize on School and School District names. `LEACode` and `SchoolCode` are used to define relationships between files where necessary. This data is available from the Office of Superintendent of Public Instruction (<https://eds.ospi.k12.wa.us/DirectoryEDS.aspx>).
+
+    -   **Variables:** LEA Code, LEAName (District), SchoolCode, SchoolName
+    -   **Observations:** 3,084 total, 342 Districts, 2,742 Schools
+
+-   **Assessment** - Report Card Assessment: Tracks rate of students taking standardized tests (e.g. SBAC) and the percent meeting standards based on score. This is a primary source for SBAC test information including the percent of students meeting standards. Observations are provided by school year, grade level, student demographics, test, and test subject. Missing school years 2019-20 and 2020-21. Data for the 2023-24 school year available here: [Report Card Assessment Data 2023-24 School Year \| Data.WA \| State of Washington](https://data.wa.gov/education/Report-Card-Assessment-Data-2023-24-School-Year/x73g-mrqp/about_data).
+
+    -   **Variables**: test_administration, test_subject, students_expected_to_test, percent_met_standard, percent_participation
+    -   **Observations**: 2.16M observations, 534,200 District level observations, 1.56M School level observations
+
+-   **Graduation** - Report Card Graduation: Percentage of students graduating from high school within the year. Graduation rates are considered as a secondary data source for control data. Data is captured at the State, County, District, and School level and includes separate observations by school year and by student demographics. Data for the 2023-24 school year is available here: [Report Card Graduation 2023-24 \| Data.WA \| State of Washington](https://data.wa.gov/education/Report-Card-Graduation-2023-24/76iv-8ed4/about_data).
+
+    -   **Variables**: graduation_rate
+    -   Observations: 830k Total, 213k Districts, 569k Schools.
+
+-   **WSIF** - Washington School Improvement Framework: WSIF is a means of measuring school improvement based on a range of scores including standardized testing, attendance, graduation, and dual credit class participation. A final score indicates the standing of the school for each year. This is an additional source of standardized testing results that may be used along with additional independent variables that may be necessary for control factors. Data is captured by school year, school, and student demographics. Data is missing for 2020 and 2021. Data for the 2023-24 school year is available here: [Washington School Improvement Framework (WSIF) 2024 Annual \| Data.WA \| State of Washington](https://data.wa.gov/education/Washington-School-Improvement-Framework-WSIF-2024-/8v2t-vz3j/about_data).
+
+    -   **Variables**: growth_ela_median, growth_math_median, attendance_rate, ninth_grade_on_track, dual_credit_rate, final_score
+    -   Observations: 149k Total
+
+### Data Sources with Outcome Variables
+
+Outcome variables are also pulled from the Washington State Open Data Portal. These track student outcomes specific to high schools within the state.
+
+-   **First Year Enrollment by Sector** - Captures the percent of students that enrolled in a 2-year or 4-year college within one year of graduating. This data source will provide the primary outcome variable for this analysis. Additional attributes indicate if the college was public or private and if it is in Washington or Out Of State. Note that students Not Enrolled may or may not be employed. Data includes graduating years 2005 to 2023 and can be accessed here: [High School Graduate Outcomes - First Year Enrollment by Sector \| Data.WA \| State of Washington](https://data.wa.gov/education/High-School-Graduate-Outcomes-First-Year-Enrollmen/vk6s-am8z/about_data).
+
+    -   **Variables**: PercentEnrolled, EnrollmentLevel, OrganizationLocation, OrganizationType (public/private)
+    -   **Observations**: 104k Total, 40k Districts, 88k Schools
+
+-   **Persistence / Retention** - This data set tracks students that remain in college after the first year. This includes outcome variables that may be used if time permits. Persistence is an indication that the student stayed in college, but may have transferred schools. Retention indicates the student stayed in the same school. This is a measure of "stickiness" for college enrollment. The Persistence and Retention data includes graduating years 2005 to 2022 and is available here: [High School Graduate Outcomes - Persistence / Retention \| Data.WA \| State of Washington](https://data.wa.gov/education/High-School-Graduate-Outcomes-Persistence-Retentio/7hx3-t3pn/about_data).
+
+    -   **Variables:** Persist_Retain, Percentage
+    -   **Observations:** 420k Total, 172k Districts, 308k Schools
+
+-   **Remedial Coursetaking** - Measures the rate at which first year college students from Washington high schools take remedial courses. Remedial courses in Math and English are tracked. This supports tracking the reate at which students exit high school without the literacy or math capabilities expected in college. Data includes graduating years 2005 to 2023 and can be accessed here: [High School Graduate Outcomes - Remedial Coursetaking \| Data.WA \| State of Washington](https://data.wa.gov/education/High-School-Graduate-Outcomes-Remedial-Coursetakin/y8qh-965v/about_data).
+
+    -   **Variables**: RemedialType, Percentage
+    -   **Observations:** 591k Total, 51k County, 155k Districts, 393k Schools
+
+# References

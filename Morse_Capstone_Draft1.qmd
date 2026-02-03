@@ -1,0 +1,205 @@
+---
+title: "Capstone Paper Template"
+author: "Collin Paschall"
+bibliography: the_bib.bib
+csl: american-political-science-association.csl
+abstract: >
+ This file is a template for your capstone project. You should not need to change any settings in the YAML front matter or any of the LaTex commands at the very top of the document (the ragged right, etc. etc.). The table of contents will be automatically generated based on the headers you specify in the document.
+
+papersize: letter
+
+margin-left: 1in
+margin-right: 1in
+margin-top: 1in
+margin-bottom: 1in
+cap-location: top
+
+format: 
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    linestretch: 2
+    
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+\clearpage
+
+\raggedright
+
+\setlength{\parindent}{20pt}
+
+```{r}
+{r}
+#| label: libraries
+#| include: false
+library(tidyverse)
+library(glue)
+library(knitr)
+library(kableExtra)
+```
+
+```{r}
+#| label: loaddata
+#| eval: false
+#| include: false
+
+graduation <- read_rds("rds/graduation.rds")
+assessment <- read_rds("rds/assessment.rds")
+discipline <- read_rds("rds/discipline.rds")
+enrollment <- read_rds("rds/enrollment.rds")
+sqss <- read_rds("rds/sqss.rds")
+wsif <- read_rds("rds/wsif.rds")
+```
+
+# Introduction
+
+Welcome to the capstone course! This is a template. You can just type your text.
+
+For references, follow the [American Political Science Association style guide](https://connect.apsanet.org/stylemanual/.), particularly the sections "Manuscript Writing," "Parenthetical Citations," and "References." This includes bibliographic formatting for different sources. This is very similar to the Chicago Manual of Style.
+
+APSA style calls for listing author and year as needed in text using parenthetical citations, then including a full reference list at the end. The APSA guide also has helpful pointers on grammar and other style matters.
+
+If you use this document as a template and put your list of references in a `.bib` file, then the `.csl` file that accompanies this template (and is referenced in the YAML front matter) will take care of the reference formatting for you. The Canvas site will have some more information about how to use `.bib` files with Quarto to do your citations - [if you want to look for yourself, you can find it here](https://quarto.org/docs/authoring/footnotes-and-citations.html). It requires a bit of effort up front but will make your life much easier in the long run.
+
+You can create and manage `.bib` files with many different tools - Zotero, JabRef, Mendeley, and more. [JabRef](https://www.jabref.org) is probably the lightest weight and easiest to use. With these tools, you insert information about your sources into forms, and the software will format that information into entries in a .bib file. Then, put your `.bib` file into the folder with your .qmd file, reference that `.bib` in the YAML (as we have in this document), and then you insert the `.bib` entries using the tags in the `.qmd` document, like below:
+
+This is an example citation [@Paschall2023]. Here's another [@bachrach2017two]. Here, there are two citations supporting this sentence. [@Paschall2023; @bachrach2017two]. Notice that the period follows the parentheses. If you want to put the citation in text it looks like @Paschall2023.
+
+The `.csl` file make sure all your citation information is put in the correct APSA format. Try it out!
+
+# Literature Review
+
+Write your awesome literature review here!
+
+&&& Discussion of literacy in secondary school shown to influence college success
+
+&&& Discussion of test scores in research: SAT, ACT, AP, and IB
+
+In previous research, test scores focused on dual-credit (AP or IB) and college assessment exams (SAT and ACT). These exams can be subject to increased attention from students who already define themselves as "college bound."
+
+&&& SBAC, are not subject to the focus of test-taking strategies like the SAT or ACT might be. \<refer to @Talwar page 63\> Most students are given the SBAC simply as part of the expected school year. They do not study or prepare for the test outside of "teaching to the test" strategies. However, those strategies would be applied equally across all students. Compare this to an AP course, for example, where a select number of students are choosing to take a course centered on the subject matter of the AP exam.
+
+# Data and Methods
+
+&&& Some text
+
+## Methodology
+
+I will be tracking the rates at which students are:
+
+-   Entering college (2-year or 4-year)
+
+-   Control factor: Participating in remedial courses in the first year. Theoretically this is an indication that the student is NOT ready for college.
+
+This will be measured based on influencing variables such as:
+
+-   Rate at which students meet standards for ELA testing.
+
+-   Rate at which test results within a District change over time.
+
+-   Rate at which students participate in dual credit courses
+
+-   Rate at which students graduate high school.
+
+Several variables will also be considered to control for various socio-economic factors including: ethnicity, income level, and geography.
+
+My primary assessment of literacy capability will be based on the percent of students meeting expected standards for the ELA SBAC test. This test is administered 8 times throughout a student's secondary school education. The OSPI data includes the total number of students testing, the total number meeting standards, and the percent meeting standards. An SBAC score is a value of 1 to 4, with values of 3 and 4 indicating the student met expected standards.
+
+The data includes multiple school years and grade levels. However, as this research question does not examine changes across time, district level results are aggregated into a single indicator for the district.
+
+The OSPI data includes scores for individual schools and for each grade, indicating the percent of students meeting expectations within the grade for that school year. Aggregates are also provided at the All Grades level and at the school district level. I have chosen to create an aggregate score for each school year and for each school district based on the percentages provided for all grades and all schools within the district. This is handled using a Logit transformation of weighted scores. I am weighting the grades so that later grades have more influence on the overall literacy score, indicating more influence on college enrollment and persistence.
+
+$$ \text{logit}_{g} = \ln\!\left(\frac{p_{g}}{1 - p_{g}}\right) $$
+
+$$ w_{g} = \text{grade\_weight}_{g} \cdot n_{g} $$
+
+$$ \text{WeightedLogit}_{d,y} = \frac{ \sum_{g} \left( \text{logit}_{g} \cdot w_{g} \right) }{ \sum_{g} w_{g} } $$
+
+Above are formulas rendered in Latex
+
+## Analysis
+
+## Directions
+
+Make sure all of your tables and figures are labeled, numbered, and have descriptive titles. Make sure they are aesthetically pleasing, with plain English variable names, legends, etc. Generate all of your tables and figures in the same Quarto document in which you write your paper, using code blocks. You should hide the code that generates the figures and tables - you only want the tables and figures themselves in the final PDF for submission. **NO RAW CODE**.
+
+You can choose to either put your tables and figures in-line with your document, or you can include them at the end of your main text as an Appendix of Tables and Figures. It's preferable that you put them in-line, but sometimes this is a formatting pain because Quarto has very strong opinions about where figures go on the page. So, the path of least resistance (and what is consistent with how you'd prepare an article for publication) is to include placeholders in between paragraphs that say something like:
+
+\center \[Table 1 about here\]
+
+\raggedright
+
+\setlength{\parindent}{20pt}
+
+At the end of this document, you'll find a few resources for and examples of tables of and figures. Make tables and figures a reasonable size and use your space efficiently.
+
+# Results
+
+Talk about the results of your analysis. Make sure you include tables and figures!
+
+# Conclusion
+
+Summarize and wrap up.
+
+\clearpage
+
+# Appendix of Tables and Figures
+
+For more details about how to work with figures in Quarto, check the [Quarto documentation](https://quarto.org/docs/authoring/figures.html) (or just follow this example). Make sure all your figures are appropriately scaled, easy to read/meaningful, and have axis labels with plain English names of variables
+
+For tables, [you can make tables manually in Quarto](https://quarto.org/docs/authoring/tables.html), but it's often better to use an R package that generates nice looking tables automatically. There are lots of options for this, but a [good choice](https://haozhu233.github.io/kableExtra/) is `kable` in conjunction with `kableExtra`. For PDF documents that are rendered using LaTex, [here is the specific documentation](https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf).
+
+There are similarly lots of options for making nice-looking regression output. A [good choice](https://jtools.jacob-long.com/articles/summ.html) is `jtools`. You will want to install the packages `kableExtra` and `huxtable` along with `jtools`. Stargazer is another [common choice](https://libguides.princeton.edu/R-stargazer).
+
+```{r}
+#| label: fig1
+#| fig-cap: "Fuel Efficiency and Weight"
+
+library(tidyverse)
+
+ggplot(mtcars, aes(x=wt, y=mpg)) + 
+  geom_point() +
+  xlab("Weight (in thousands of lbs)") + 
+  ylab("Miles per Gallon")
+```
+
+\clearpage
+
+Note: if you look at the R code, there is an option in the `kable_styling()` function - the "HOLD_position" value. This is important because it specifies that your table will go exactly where you want it in the document.
+
+```{r}
+library(kableExtra)
+
+test_dat<-head(mtcars[, 1:4])
+kbl(test_dat,booktabs=T,caption="Example Table",format="latex") %>% kable_styling(latex_options = c("striped","HOLD_position"))
+
+
+```
+
+\clearpage
+
+\begin{center}
+Table 2: Regression Example
+\end{center}
+
+```{r}
+#install.packages("huxtable")
+#install.packages("jtools")
+library(huxtable)
+library(jtools) # Load jtools
+data(movies) # Telling R we want to use this data
+fit <- lm(metascore ~ imdb_rating + log(us_gross) + genre5, data = movies)
+export_summs(fit)
+
+```
+
+\clearpage
+
+# References
+
+\[Note that references will be included here at the end of the document automatically if you use a `.bib` file and RStudio's citation tools.\]
