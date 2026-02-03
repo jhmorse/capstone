@@ -122,5 +122,4 @@ sqss_sample <- sqss_sample[sample(nrow(sqss_sample), 10), ]
 # Write the sample to a CSV file
 write_csv(sqss_sample, "validate/sqss_sample.csv")
 
-## NOTES
-## &&& Analysis not complete
+

@@ -155,6 +155,27 @@ data_list <- lapply(data_list, janitor::clean_names)
 
 # Loop through the list and perform an rbind to combine into single data frame
 assessment <- do.call(rbind, data_list)
+
+# There are several numeric columns that came in as character.
+# These need to be converted.
+numeric_columns <- c("count_of_students_expected_to_test",
+                     "count_students_expected_to_test_incl_passed",
+                     "count_met_standard",
+                     "percent_level1", "percent_level2", 
+                     "percent_level3", "percent_level4",
+                     "percent_met_tested_only", "percent_no_score",
+                     "percent_participation")
+assessment <- assessment %>%
+  # Remove all rows where count_met_standard == NULL
+  filter(suppression == "None",
+         count_met_standard != "NULL") %>%
+  # Convert the "71.3%" style characters into numbers
+  mutate(percent_met_standard = parse_number(percent_met_standard) / 100) %>%
+  # convert columns to numeric where appropriate
+  mutate(across(all_of(numeric_columns), as.numeric)) %>%
+  # Convert NA to 0 across these numeric columns
+  mutate(across(all_of(numeric_columns), ~replace_na(., 0)))
+
 # Save to RDS format
 assessment <- remove_rownames(assessment)
 saveRDS(assessment, file = glue("{rds_path}assessment.rds"))
