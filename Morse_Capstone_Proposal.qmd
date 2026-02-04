@@ -111,9 +111,9 @@ This section identifies primary data sets that include independent variables and
 
 Outcome variables are also pulled from the Washington State Open Data Portal. These track student outcomes specific to high schools within the state.
 
--   **First Year Enrollment by Sector** - Captures the percent of students that enrolled in a 2-year or 4-year college within one year of graduating. This data source will provide the primary outcome variable for this analysis. Additional attributes indicate if the college was public or private and if it is in Washington or Out Of State. Note that students Not Enrolled may or may not be employed. Data includes graduating years 2005 to 2023 and can be accessed here: [High School Graduate Outcomes - First Year Enrollment by Sector \| Data.WA \| State of Washington](https://data.wa.gov/education/High-School-Graduate-Outcomes-First-Year-Enrollmen/vk6s-am8z/about_data).
+-   **First Year Enrollment** - Captures the percent of students that enrolled in a 2-year or 4-year college within one year of graduating. Also includes the percentage not enrolled in any post-secondary education. Data includes graduating years 2005 to 2023 and can be accessed here: [High School Graduate Outcomes - First Year Enrollment by Sector \| Data.WA \| State of Washington](https://data.wa.gov/education/High-School-Graduate-Outcomes-First-Year-Enrollmen/vk6s-am8z/about_data).
 
-    -   **Variables**: PercentEnrolled, EnrollmentLevel, OrganizationLocation, OrganizationType (public/private)
+    -   **Variables**: Percent Enrolled, Enrollment Level
     -   **Observations**: 104k Total, 40k Districts, 88k Schools
 
 -   **Persistence / Retention** - This data set tracks students that remain in college after the first year. This includes outcome variables that may be used if time permits. Persistence is an indication that the student stayed in college, but may have transferred schools. Retention indicates the student stayed in the same school. This is a measure of "stickiness" for college enrollment. The Persistence and Retention data includes graduating years 2005 to 2022 and is available here: [High School Graduate Outcomes - Persistence / Retention \| Data.WA \| State of Washington](https://data.wa.gov/education/High-School-Graduate-Outcomes-Persistence-Retentio/7hx3-t3pn/about_data).

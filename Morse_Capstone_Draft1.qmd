@@ -122,6 +122,25 @@ $$ \text{WeightedLogit}_{d,y} = \frac{ \sum_{g} \left( \text{logit}_{g} \cdot w_
 
 Above are formulas rendered in Latex
 
+Enrollment rates for each year are aggregated at the School District level using a Logit_average technique. I did not have access to the underlying numbers for students enrolled in each year. Thus, the ratios provided in my source data needed to be averaged without weighting. The Logit-average technique is appropriate for averaging ratios.
+
+Formulas:
+
+Logit-average formula converts each rate of enrollment into a logit value using the 
+natural logarithm. Values across years are averaged. 
+
+$$
+\text{LogitAvg} 
+= \frac{1}{T} \sum_{t=1}^{T} \operatorname{logit}(r_t)
+$$
+
+Once the values are averaged, the value is converted back into a standard ratio value.
+
+$$
+R = \operatorname{logistic}(\text{LogitAvg})
+= \frac{1}{1 + e^{-\text{LogitAvg}}}
+$$
+
 ## Analysis
 
 ## Directions

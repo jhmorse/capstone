@@ -22,6 +22,7 @@ saveRDS(persistence, glue("{rds_path}persistence.rds"))
 saveRDS(ps_completion, glue("{rds_path}ps_completion.rds"))
 saveRDS(remedial, glue("{rds_path}remedial.rds"))
 saveRDS(dual_credit, glue("{rds_path}dual_credit.rds"))
+saveRDS(wa_school_directory, glue("{rds_path}school_directory.rds"))
 
 dfTemp <- remedial %>%
   select(RemedialType) %>%

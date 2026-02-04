@@ -45,7 +45,7 @@ district_scores <- assessment %>%
   ) %>%
   mutate(
     n_tested = count_students_expected_to_test_incl_passed,
-    logit = log(percent_met_standard / (1 - percent_met_standard)), # COmpute the logit
+    logit = log(percent_met_standard / (1 - percent_met_standard)), # Compute the logit
     grade_weight = grade_weights[grade_level],
     combined_weight = grade_weight * n_tested     # weight the size of the group tested
   ) %>%
