@@ -84,6 +84,8 @@ In previous research, test scores focused on dual-credit (AP or IB) and college 
 
 &&& SBAC, are not subject to the focus of test-taking strategies like the SAT or ACT might be. \<refer to @Talwar page 63\> Most students are given the SBAC simply as part of the expected school year. They do not study or prepare for the test outside of "teaching to the test" strategies. However, those strategies would be applied equally across all students. Compare this to an AP course, for example, where a select number of students are choosing to take a course centered on the subject matter of the AP exam.
 
+&&& Contradiction of test scores
+
 # Data and Methods
 
 &&& Some text
@@ -126,8 +128,7 @@ Enrollment rates for each year are aggregated at the School District level using
 
 Formulas:
 
-Logit-average formula converts each rate of enrollment into a logit value using the 
-natural logarithm. Values across years are averaged. 
+Logit-average formula converts each rate of enrollment into a logit value using the natural logarithm. Values across years are averaged.
 
 $$
 \text{LogitAvg} 
