@@ -5,12 +5,12 @@
 library(tidyverse)
 
 # ---- Load Data ----
-directory <- read_rds("rds/school_directory.rds")
+schools <- read_rds("rds/school_directory.rds")
+districts <- read_rds("rds/district_directory.rds")
 fy_enrollment <- read_rds("rds/fy_enrollment.rds")
 assessment <- read_rds("rds/assessment.rds")
-graduation <- read_rds("rds/graduation.rds")
 
-# ---- Helper functions
+# ---- Helper functions ----
 
 # Safe division
 safe_div <- function(num, denom) {
@@ -52,7 +52,7 @@ pool_logit_by_group <- function(data, group_var, pct_var, weight_var) {
 
 
 # ---- District Lookup ----
-district_lookup <- directory %>%
+district_lookup <- schools %>%
   select(LEACode, LEAName, ESDCode, ESDName) %>%
   distinct() %>%
   rename(district_code = LEACode,
@@ -60,42 +60,16 @@ district_lookup <- directory %>%
          esd_code = ESDCode,
          esd_name = ESDName)
 
-# ---- High School Graduation ----
-
-# To correctly calculate weighted logit means in the
-# college enrollment, we need to estimate the denominator,
-# which is the total number of students that could be
-# enrolling in college. For this analysis, I am using the
-# total number of students graduating in the school year
-# ending in the same year as enrollment.
-
-# Get graduation rates by district
-df_grad_year <- graduation %>%
-  filter(
-    organization_level == "District",
-    student_group == "All Students",
-    suppression == "No DAT",
-    cohort == "Four Year"   # closest representation of actual graduation rate
-  ) %>%
-  mutate(
-    # Use school_year to calculate actual graduation year
-    grad_year = as.numeric(substr(school_year, 1, 4)) + 1
-  ) %>%
-  select(school_year, grad_year, district_code,
-         beginning_grade9, final_cohort, graduate) %>%
-  mutate(
-    # Convert numeric columns to actual numbers
-    beginning_grade9 = as.numeric(beginning_grade9),
-    final_cohort = as.numeric(final_cohort),
-    graduate = as.numeric(graduate)
-  )
 
 
 # ---- College Enrollment Data ----
 
 ## Use df_enroll_year for rates of enrollment by year.
-## Use df_enroll_district for rates of enrollment by district,
-## averaged across years.
+
+## Get Enrollment Percentage by enrollment year,
+## and by School District. Include All Students
+## and Gender breakdown. Track enrollment for 
+## 4-Year college only.
 
 # Filter for School districts and relevant columns
 df_enroll_year <- fy_enrollment %>%
@@ -103,140 +77,133 @@ df_enroll_year <- fy_enrollment %>%
          LEACode != "N/A",              # Valid districts only
          CohortYearTTL >= 2015,         # No school data is before 2015
          !is.na(Pct),                   # Drop anything with no results
-         DemographicGroup == "All Students") %>%  
+         PSEnrollLevel == "4 Year",     # 4 -Year College Enrollment
+         DemographicGroup %in% c("All Students", "Gender")) %>%  
   select(CohortYearTTL, LEACode, DistrictTTL,
-         PSEnrollLevel, Pct)
+         DemographicValue, PSEnrollLevel, Pct)
 
-# Join college enrollment data to district lookup
+# Join college enrollment data to district lookup.
+# The inner_join ensures ONLY valid and traceable
+# school districts are identified.
 df_enroll_year <- df_enroll_year %>%
-  left_join(district_lookup,
+  inner_join(district_lookup,
             by = c("LEACode" = "district_code")) %>%
   select(CohortYearTTL, LEACode, district_name, 
-         PSEnrollLevel, Pct) %>%
+         #PSEnrollLevel, 
+         DemographicValue, Pct) %>%
   rename(year = CohortYearTTL,
          district_code = LEACode,
-         enrollment_level = PSEnrollLevel,
+         #enrollment_level = PSEnrollLevel,
+         demographic = DemographicValue,
          percent_enrolled = Pct)
 
-# Join graduation rates by District and by year.
-# At this point, graduate is our denominator!
+# Change the values in demographic to columns
+# with Pct as the values.
+
 df_enroll_year <- df_enroll_year %>%
-  inner_join(df_grad_year, 
-             by = c("district_code" = "district_code",
-                    "year" = "grad_year"))
-
-# We can now use the denominator to summarize
-# enrollment rates at the District level.
-
-## HOWEVER:
-## I am choosing NOT to use the weighted logit method. 
-## Weighted Logits will inadvertently weight the size
-## of the district. My intent here is to combine within
-## a district, and we expect the number of graduates
-## within a district to remain stable year over year.
-
-# Group by District, with combined values by year.
-# Use a Logit average to combine percentages.
-df_enroll_district <- df_enroll_year %>%
-  mutate(
-    logit_val = qlogis(percent_enrolled)
-    #logit_val = logit_prop(percent_enrolled)
+  pivot_wider(names_from = demographic, 
+              values_from = percent_enrolled,
+              names_glue = "{demographic}"
   ) %>%
-  group_by(district_code, district_name, enrollment_level) %>%
-  summarise(
-    # Sum the total graduates for the District
-    graduate = sum(graduate, na.rm = TRUE),
-    
-    # Calculate the Logit Average
-    pooled_logit = mean(logit_val, na.rm = TRUE),
-    #pooled_logit = wmean_logit(logit_val, graduate),
-    # Convert back to a ratio/percentage
-    pooled_pct_enrolled = plogis(pooled_logit),
-    #pooled_pct_enrolled = inv_logit_pct(pooled_logit),
-    
-    .groups = "drop"
-  )
+  rename(enrollment_all = All,
+         enrollment_female = Female,
+         enrollment_male = Male)
 
 
 
 
-
-# *********************************************************  
-# ---- SBAC Assessment Data ----
+# ---- SBAC Assessment Data - Base Data ----
 
 ## Use df_assess_allgrades to get, by year, percent meeting standards
 ##   across all grades
-## Use df_assess_dist_allgrades to get an aggregate of all years, 
-##   percent meeting standards across all grades
 ## Use df_assess_final to get, by year, the most recent SBAC scores
 ##   (usually in 10th or 11th grade).
-## Use df_assess_dist_final to get an aggregate of all years for
-##   a district, showing percent met standards in final testing.
 ## Use df_assess_last2 to get, by year, an aggregate of the last two
 ##   SBAC scores for any school district (usually 10th and 11th).
-## Use df_assess_dist_last2 to get an aggregate of all years for
-##   each District of the last two SBAC scores.
 ## Use df_assess_wtd for a weighted aggregate score by district
 ##  for each year. Higher grade levels are weighted more.
-## Use df_assess_dist_wtd for a weighted score at the district
-##   level with all years aggregated together.
 
 
 # Get the District Level data by year
 df_assess_year <- assessment %>%
-  filter(student_group == "All Students",
+  filter(
+         student_group %in% c("All Students", "Female", "Low-Income"),
          organization_level == "District",
-         test_administration == "SBAC") %>%
-  select(school_year, district_code, district_name,
-         grade_level, test_subject, 
-         count_students_expected_to_test_incl_passed,
-         count_met_standard, percent_met_standard,
-         percent_level3, percent_level4
+         test_administration == "SBAC"
          ) %>%
-  rename(count_tested = count_students_expected_to_test_incl_passed)
+  # Second half of school year as number to match enrollment data
+  mutate(year = as.numeric(substr(school_year, 1, 4)) + 1) %>%
+  # Reduce to columns of interest
+  select(school_year, year, county, district_code, district_name,
+         grade_level, student_group, test_subject, 
+         count_students_expected_to_test_incl_passed,
+         #count_met_standard, 
+         #percent_level3, percent_level4,
+         percent_met_standard
+         ) %>%
+  rename(cnt_tested = count_students_expected_to_test_incl_passed,
+         #cnt_met = count_met_standard,
+         #pct_lvl3 = percent_level3,
+         #pct_lvl4 = percent_level4,
+         pct_met = percent_met_standard)
 
 
-# *********************************************************  
-# ---  ALL GRADES
+# ---- SBAC Assessment Data - All Grades ----
 
 # Get All Grades totals by district, and 
 # spread ELA and Math into one row.
 df_assess_allgrades <- df_assess_year %>%
   filter(grade_level == "All Grades") %>%
-  rename(tested = count_tested,
-         met = count_met_standard,
-         pct_met = percent_met_standard,
-         pct_level3 = percent_level3,
-         pct_level4 = percent_level4) %>%
   select(-grade_level) %>%
   pivot_wider(names_from = test_subject, 
-              values_from = c(tested, met, pct_met, pct_level3, pct_level4),
+              values_from = c(cnt_tested, pct_met),
               names_glue = "{test_subject}_{.value}"
               )
 
 # Replace NA with 0 for all variables
 df_assess_allgrades[is.na(df_assess_allgrades)] <- 0
 
-# Get an aggregated value by district across all years.
-# In this case we have the raw numbers and can aggregate
-# to calculate a percentage.
-df_assess_dist_allgrades <- df_assess_allgrades %>%
-  select(-ELA_pct_met, -Math_pct_met,
-         -ELA_pct_level3, -ELA_pct_level4,
-         -Math_pct_level3, -Math_pct_level4) %>%
-  group_by(district_code, district_name) %>%
-  summarise(ELA_tested = sum(ELA_tested, na.rm = TRUE),
-            Math_tested = sum(Math_tested, na.rm = TRUE),
-            ELA_met = sum(ELA_met, na.rm = TRUE),
-            Math_met = sum(Math_met, na.rm = TRUE)) %>%
-    ungroup() %>%
-    mutate(ELA_pct_met = safe_div(ELA_met, ELA_tested),
-         Math_pct_met = safe_div(Math_met, Math_tested))
+# Replace values in student_group with different values
+df_assess_allgrades <- df_assess_allgrades %>%
+  mutate(student_group = case_when(
+    student_group == "All Students" ~ "All",
+    student_group == "Low-Income" ~ "LI",
+    #student_group == "Non-Low Income" ~ "NonLI",
+    #student_group == "Male" ~ "Male",
+    student_group == "Female" ~ "Female")
+  )
 
+# Pivot based on the demographics in student_group
+df_assess_allgrades <- df_assess_allgrades %>%
+  pivot_wider(
+    names_from = student_group,
+    values_from = c(ELA_cnt_tested, Math_cnt_tested, ELA_pct_met, Math_pct_met),
+    names_glue = "{student_group}_{.value}"
+  )
+
+# Create ratios of Female and LI taking test,
+# then drop unneeded columns.
+df_assess_allgrades <- df_assess_allgrades %>%
+  rename(ela_tested = All_ELA_cnt_tested,
+         math_tested = All_Math_cnt_tested) %>%
+  mutate(ela_li_ratio = safe_div(LI_ELA_cnt_tested, ela_tested),
+         ela_female_ratio = safe_div(Female_ELA_cnt_tested, ela_tested),
+         math_li_ratio = safe_div(LI_Math_cnt_tested, math_tested),
+         math_female_ratio = safe_div(Female_Math_cnt_tested, math_tested)
+         ) %>%
+  select(-LI_ELA_cnt_tested, -Female_ELA_cnt_tested,
+         -LI_Math_cnt_tested, -Female_Math_cnt_tested) %>%
+  rename(ela_met = All_ELA_pct_met,
+         ela_li_met = LI_ELA_pct_met,
+         ela_female_met = Female_ELA_pct_met,
+         math_met = All_Math_pct_met,
+         math_li_met = LI_Math_pct_met,
+         math_female_met = Female_Math_pct_met)
   
-# *********************************************************  
-# ---  FINAL SBAC GRADE (usually 11th or 10th grade)
-  
+
+
+# ---- SBAC Assessment Data - Last Grade ----
+
 # Get the data by district and by grade, 
 # removing the All Grades aggregate.
 df_assess_final <- df_assess_year %>%
@@ -266,22 +233,8 @@ df_assess_final <- df_assess_final %>%
 # Replace NA with 0 for all variables
 df_assess_final[is.na(df_assess_final)] <- 0
 
-# Get aggregated value by District (includes all years).
-df_assess_dist_final <- df_assess_final %>%
-  select(school_year, district_code, district_name,
-         ELA_tested, Math_tested, 
-         ELA_met, Math_met) %>%
-  group_by(district_code, district_name) %>%
-  summarise(ELA_tested = sum(ELA_tested, na.rm = TRUE),
-            Math_tested = sum(Math_tested, na.rm = TRUE),
-            ELA_met = sum(ELA_met, na.rm = TRUE),
-            Math_met = sum(Math_met, na.rm = TRUE)) %>%
-  ungroup() %>%
-  mutate(ELA_pct_met = safe_div(ELA_met, ELA_tested),
-         Math_pct_met = safe_div(Math_met, Math_tested))
 
-# *********************************************************  
-# ---  LAST TWO SBAC GRADES (usually 11th & 10th grade)
+# ---- SBAC Assessment Data - Last 2 Grades ----
 
 # This looks much like the last, except we are getting
 # the last 2 SBAC grades for the district in each year
@@ -327,23 +280,8 @@ df_assess_last2 <- df_assess_last2 %>%
   mutate(ELA_pct_met = safe_div(ELA_met, ELA_tested),
          Math_pct_met = safe_div(Math_met, Math_tested))
   
-# Get aggregated value by District (includes all years).
-df_assess_dist_last2 <- df_assess_last2 %>%
-  select(school_year, district_code, district_name,
-         ELA_tested, Math_tested, 
-         ELA_met, Math_met) %>%
-  group_by(district_code, district_name) %>%
-  summarise(ELA_tested = sum(ELA_tested, na.rm = TRUE),
-            Math_tested = sum(Math_tested, na.rm = TRUE),
-            ELA_met = sum(ELA_met, na.rm = TRUE),
-            Math_met = sum(Math_met, na.rm = TRUE)) %>%
-  ungroup() %>%
-  mutate(ELA_pct_met = safe_div(ELA_met, ELA_tested),
-       Math_pct_met = safe_div(Math_met, Math_tested))
-  
 
-# *********************************************************  
-# ---  WEIGHTED SBAC AGGREGATE GRADES
+# ---- SBAC Assessment Data - Weighted Aggregate ----
 
 ## This uses a Logit transformation of weighted scores. 
 ## I am weighting the grades so that later grades have 
@@ -411,10 +349,10 @@ df_assess_wtd <- df_assess_wtd %>%
     Math_weight = grade_weight * Math_tested
   )
 
-## IMPORTANT
+## NOT USED
 ## Assign current state of data set to df_assess_dist_wtd
 ## to allow for aggregating at district level across years.
-df_assess_dist_wtd <- df_assess_wtd
+#df_assess_dist_wtd <- df_assess_wtd
 
 # Group by year and school district, then
 # Calculate the weighted logit scores for the grouped data.
@@ -457,93 +395,16 @@ df_assess_wtd <- df_assess_wtd %>%
 
 
 
-# Repeat the grouping process and the scores, but group at
-# the district level, aggregating all years into a single
-# score for each district.
-df_assess_dist_wtd <- df_assess_dist_wtd %>%
-  group_by(district_code, district_name) %>%
-  summarize(
-    # Include total number of students tested
-    ELA_tested = sum(ELA_tested),
-    Math_tested = sum(Math_tested),
-    
-    # Generate weighted means for each Logit value.
-    # This is what should be used for regression.
-    ELA_weighted_logit = wmean_logit(ELA_logit, ELA_weight),
-    ELA_level3_logit = wmean_logit(ELA_level3_logit, ELA_weight),
-    ELA_level4_logit = wmean_logit(ELA_level4_logit, ELA_weight),
-    
-    Math_weighted_logit = wmean_logit(Math_logit, Math_weight),
-    Math_level3_logit = wmean_logit(Math_level3_logit, Math_weight),
-    Math_level4_logit = wmean_logit(Math_level4_logit, Math_weight),
 
-    # Convert Logits back to proportions for charts and tables
-    ELA_score = inv_logit_pct(ELA_weighted_logit),
-    ELA_level3_score = inv_logit_pct(ELA_level3_logit),
-    ELA_level4_score = inv_logit_pct(ELA_level4_logit),
-    
-    Math_score = inv_logit_pct(Math_weighted_logit),
-    Math_level3_score = inv_logit_pct(Math_level3_logit),
-    Math_level4_score = inv_logit_pct(Math_level4_logit),
-    
-    .groups = "drop"
-  ) #%>%
-  #select(district_code, district_name,
-  #       ELA_score, ELA_level3_score, ELA_level4_score,
-  #       Math_score, Math_level3_score, Math_level4_score)
+# *******************************************
+## Temp working space
+dfTemp <- assessment %>%
+  filter(#student_group %in% c("All Students", "Female"),
+         student_group_type %in% c("All", "Gender"),
+         organization_level == "District",
+         test_administration == "SBAC")
+View(dfTemp)
 
-# Convert anything that is not a number (NaN) to 0
-df_assess_dist_wtd <- df_assess_dist_wtd %>%
-  mutate(across(where(is.numeric), ~ ifelse(is.nan(.), 0, .)))
-
-
-
-# ---- Combined Enrollment and Assessment ----
-
-# Start with simple view of District aggregates
-# and Assessment scores for all grades.
-
-#df_enroll_district
-#df_assess_dist_allgrades
-  
-df <- df_assess_dist_allgrades %>%
-  inner_join(df_enroll_district, 
-            by = c("district_code" = "district_code")) %>%
-  select(-district_name.y, -pooled_logit) %>%
-  rename(district_name = district_name.x,
-         percent_enrolled = pooled_pct_enrolled)
-
-
-# Scatter plot of ELA_pct_met against percent_enrolled
-# with color for Enrollment level.
-ggplot(df, aes(x = ELA_pct_met, 
-               y = percent_enrolled, 
-               color = enrollment_level)) +
-  geom_point()
-
-
-ggplot(df, aes(x = Math_pct_met, 
-               y = percent_enrolled, 
-               color = enrollment_level)) +
-  geom_point()
-
-
-## Is there a relationship between enrollment and the 
-## weighted assessment scores?
-
-df2 <- df_assess_dist_wtd %>%
-  inner_join(df_enroll_district, 
-             by = c("district_code" = "district_code")) %>%
-  select(-district_name.y, -pooled_logit) %>%
-  rename(district_name = district_name.x,
-         percent_enrolled = pooled_pct_enrolled)
-
-# Scatter plot of ELA_score (the weighted test score across grades)
-# against percent_enrolled with color for Enrollment level.
-ggplot(df2, aes(x = ELA_score, 
-               y = percent_enrolled, 
-               color = enrollment_level)) +
-  geom_point()
 
 
 

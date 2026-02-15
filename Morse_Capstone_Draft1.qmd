@@ -1,7 +1,7 @@
 ---
-title: "Capstone Paper Template"
-author: "Collin Paschall"
-bibliography: the_bib.bib
+title: "Capstone Project - Draft 1"
+author: "John Morse"
+bibliography: capstone.bib
 csl: american-political-science-association.csl
 abstract: >
  This file is a template for your capstone project. You should not need to change any settings in the YAML front matter or any of the LaTex commands at the very top of the document (the ragged right, etc. etc.). The table of contents will be automatically generated based on the headers you specify in the document.
@@ -34,7 +34,6 @@ execute:
 \setlength{\parindent}{20pt}
 
 ```{r}
-{r}
 #| label: libraries
 #| include: false
 library(tidyverse)
@@ -48,47 +47,103 @@ library(kableExtra)
 #| eval: false
 #| include: false
 
+directory <- read_rds("rds/school_directory.rds")
 graduation <- read_rds("rds/graduation.rds")
 assessment <- read_rds("rds/assessment.rds")
-discipline <- read_rds("rds/discipline.rds")
-enrollment <- read_rds("rds/enrollment.rds")
-sqss <- read_rds("rds/sqss.rds")
-wsif <- read_rds("rds/wsif.rds")
+fy_enrollment <- read_rds("rds/fy_enrollment.rds")
+```
+
+```{r}
+#| label: source_datasets
+#| include: false
+
+# Sourcd the R file that builds the necessary data sets.
+source("build-dataset.R")
 ```
 
 # Introduction
 
-Welcome to the capstone course! This is a template. You can just type your text.
+Literacy provides the base skillset of all student education, both through a student’s school years as well as beyond. In 2012, the Annie E. Casey Foundation published research on the importance of early literacy skills and poverty rates. Students who have not met expected standards in literacy by 3^rd^ grade will quickly fall behind, risking even their likelihood of graduation from high school \[\@Hernandez2011\]. Yet programs designed to build literacy skills in childhood are often at risk.
 
-For references, follow the [American Political Science Association style guide](https://connect.apsanet.org/stylemanual/.), particularly the sections "Manuscript Writing," "Parenthetical Citations," and "References." This includes bibliographic formatting for different sources. This is very similar to the Chicago Manual of Style.
+In Washington state, budget cuts from the state Legislature recently eliminated the Imagination Library program, an early learning program providing books for children from birth to age 5 \[\@Lotmore2025\]. The Office of the Superintendent of Public Education (OSPI) has stepped in with discretionary funds for the current school year (2025-26), but the future of the program in Washington state remains unclear.
 
-APSA style calls for listing author and year as needed in text using parenthetical citations, then including a full reference list at the end. The APSA guide also has helpful pointers on grammar and other style matters.
+Literacy itself has a broad definition and can include word decoding, reading speed, text comprehension, reading strategies, and even motivation \[\@Jackson2005;\@Talwar2022\]. At its core, though, are the skills of reading, reading comprehension, and writing. At the secondary school level, Washington state uses standardized tests provided by the Smarter Balanced Assessment Consortium (SBAC) to track student achievement in English Language Arts (ELA) and Mathematics. Tests can be administered as many as eight times in a student’s secondary schooling, from grades 3 to 11.
 
-If you use this document as a template and put your list of references in a `.bib` file, then the `.csl` file that accompanies this template (and is referenced in the YAML front matter) will take care of the reference formatting for you. The Canvas site will have some more information about how to use `.bib` files with Quarto to do your citations - [if you want to look for yourself, you can find it here](https://quarto.org/docs/authoring/footnotes-and-citations.html). It requires a bit of effort up front but will make your life much easier in the long run.
+These test scores provide a thread throughout secondary schooling where we can track the rate at which students are achieving expected literacy goals. At the same time, they measure the success of teaching and learning programs implemented within the schools and school districts. In fact, standardized tests are a direct result of the No Child Left Behind (NCLB) and Every Student Succeeds Act (ESSA) implemented by the Bush and Obama administrations in 2002 and 2015 respectively.
 
-You can create and manage `.bib` files with many different tools - Zotero, JabRef, Mendeley, and more. [JabRef](https://www.jabref.org) is probably the lightest weight and easiest to use. With these tools, you insert information about your sources into forms, and the software will format that information into entries in a .bib file. Then, put your `.bib` file into the folder with your .qmd file, reference that `.bib` in the YAML (as we have in this document), and then you insert the `.bib` entries using the tags in the `.qmd` document, like below:
+Although student success can be represented in many ways, including steady employment or military enrollment, 4-year college enrollment is a well-measured indicator of post-secondary outcomes.  According to the Education Research & Data Center (ERDC) for Washington State, the rate of enrollment in 4-year colleges has remained nearly flat over the past 10 years, while enrollment in 2-year colleges and technical schools has decreased by four percentage points. At the same time, ERDC reports rates of enrollment in college-prep English courses has dropped from 9% to 6% for 4-year college destined students and from 36% to 15% for students expecting to enter 2-year colleges or technical schools \[\@ERDC2026\].
 
-This is an example citation [@Paschall2023]. Here's another [@bachrach2017two]. Here, there are two citations supporting this sentence. [@Paschall2023; @bachrach2017two]. Notice that the period follows the parentheses. If you want to put the citation in text it looks like @Paschall2023.
+With the decrease in enrollment, the Washington Student Achievement Council (WSAC) has set a goal that "70 percent of adults ages 25 to 44 should earn a postsecondary credential" \[\@WSAC2026Plan\]. In the 10 years ending in 2024, though, WSAC measured an 18% decrease in post-secondary enrollment \[\@WSAC2026Dashboard\].
 
-The `.csl` file make sure all your citation information is put in the correct APSA format. Try it out!
+This paper seeks to understand the relationship between student achievement in literacy at the school district level, and outcomes of that achievement in post-secondary success. Specifically, I will be assessing the relationship between ELA scores on SBAC testing and enrollment in 4-year colleges. With literacy capability in secondary school strongly associated with college readiness, tracking literacy achievement through SBAC scores may be a strong indication of college enrollment.
 
-# Literature Review
+# Background
 
-Write your awesome literature review here!
+## Literacy in Secondary Education
 
-&&& Discussion of literacy in secondary school shown to influence college success
+Research has long established a close relationship between literacy and academic success. Most recent discussions emphasize the link between early literacy and secondary education, notably high school graduation. Third-grade is frequently identified as a key point for reading skills in determining not just success, but graduation from high school. As much as 16% of children without proficient reading skills after third grade fail to graduate from high school on time, a statistic exacerbated further by a student’s socioeconomic status [@Hernandez2011].
 
-&&& Discussion of test scores in research: SAT, ACT, AP, and IB
+Although difficult to examine the direct impact of early literacy programs on student reading capability, we can examine student results through standardized testing. Comprehensive programs prior to third grade show substantial increases in reading scores on standardized tests used by states for evaluating outcomes [@Westall2023]. Further, evidence indicates the impact of those literacy programs also spills over to Math scores [@Westall2023].
 
-In previous research, test scores focused on dual-credit (AP or IB) and college assessment exams (SAT and ACT). These exams can be subject to increased attention from students who already define themselves as "college bound."
+The topic is hardly unique to the United States or the English language. A 2014 study based in Spain identified student literacy, again through standardized testing and found that reading skills and reading comprehension capability measured in earlier grades affects outcomes of later grades. Students in late primary (fifth and sixth grades) and early secondary (i.e. high school) grades showed natural improvement in reading comprehension with age, but those with reading difficulties in earlier grades continued to show weaker results in later grades [@Fidalgo2014]. Similarly, research in Finland found that reading and spelling capability assessed at the end of primary school (9^th^ grade) predicted secondary school choices, tracking students into either general education (a college-bound track) or vocational education [@Savolainen2008]. The assessment of literacy skills in earlier grades (i.e. US secondary school) ultimately predicts college enrollment and post-secondary outcomes.
 
-&&& SBAC, are not subject to the focus of test-taking strategies like the SAT or ACT might be. \<refer to @Talwar page 63\> Most students are given the SBAC simply as part of the expected school year. They do not study or prepare for the test outside of "teaching to the test" strategies. However, those strategies would be applied equally across all students. Compare this to an AP course, for example, where a select number of students are choosing to take a course centered on the subject matter of the AP exam.
+Although much has been examined regarding early literacy programs, less has been said about the response to those students that perform poorly on standardized tests. Based on standardized test scores, students in Florida required to enroll in remedial reading courses in high school are 5.4% less likely to enroll in either a 2-year or 4-year college program [@Ozek2025]. An unfortunate side effect of early assignment to a remedial course is that students can get “tracked” in remedial courses in general, resulting in fewer opportunities to succeed elsewhere in their education.
 
-&&& Contradiction of test scores
+## Literacy in College
 
-# Data and Methods
+The link between secondary school literacy skills and post-secondary outcomes continues in more recent research in the US. “\[Adults\] with a history of reading disability \[are\] less likely to pursue further education and more likely to spend a significant time in unemployment” [@James2024]. More directly, students with weak reading comprehension skills show lower scores on SATs, test results often used to determine college enrollment. Interestingly, reading comprehension weaknesses have a more pronounced impact on math and science test results than in ELA results [@James2024]. Despite the clear impact of literacy skills on student outcomes both in high school and beyond, there is evidence that colleges have set aside the need for literacy standards for student acceptance.
 
-&&& Some text
+A 2010 comparison of the reading comprehension of first-year university students at the University of Prince Edward Island to the broader population of Canada, found no difference in skills. The implication is that literacy skills were not relevant to college enrollment [@Graham2010]. Five years earlier, a study of nearly 200 students at the University of Iowa found no strong relationship between literacy skills and academic success [@Jackson2005]. The question is, then, how important are reading and reading comprehension skills to college enrollment and college success?
+
+In response to these earlier studies citing a lack of importance, we need to consider the student population participating in the research. The University of Iowa student population was restricted to second and third year students in a single educational psychology class. The authors themselves describe them as “mature, successful students” [@Jackson2005], thus nullifying the analysis as to whether their literacy skills lead to academic success. Similarly, the research in Canada was limited to just over 220 students attending a single university in Eastern Canada. Limited samples prevent a definitive answer on the importance of literacy of secondary school students and their post-secondary opportunities.
+
+This brings into question, are reading comprehension scores on standardized tests valid for assessing whether students are ready for college? Instead of depending on this assessment of reading skills to measure readiness, can we instead bring them up to a level of readiness to ensure success? Students entering college without the requisite literacy skills are often required to enroll in developmental or remedial reading courses as part of their first term. Completing such courses proves beneficial, as those students, previously unprepared, went on to complete college at the same rate as their peers [@Cox2003].
+
+## Standardized Testing and Long-Term Outcomes
+
+A common thread to the assessment of student literacy at all levels is the development and application of standardized tests of reading and reading comprehension. Though standardized testing is hardly new, increased attention in the United States started with the No Child Left Behind (NCLB) act in 2002 implemented by Bush administration. NCLB was updated in 2015 as the Every Student Succeeds Act (ESSA) by the Obama administration. A key requirement of ESSA (and NCLB before it) was the implementation of standardized testing for reading and math in grades 3 through 8, and at least once in high school [@us_congress_essa_2015].
+
+Research relating standardized test results to college enrollment has primarily emphasized college acceptance tests like the ACT and SAT. An extensive literature review in 2013 sought to understand the most relevant predictors of student success across elementary, middle, and high school. Literacy in third grade is correlated with ELA standardized tests results (ACT) in middle grades, which are in-turn related to enrollment in honors and dual-credit courses. [@Hein2013]. Those advanced courses, e.g. Advanced Placement (AP) and International Baccalaureate (IB) are subsequently correlated with college enrollment.
+
+As discussed previously, weaknesses in literacy skills impact not just ELA test scores on, for example, the SAT, but can have a larger impact on Science and Math scores [@James2024].  But with universities waving the requirement for college entrance exams over the past five years, these tests may no longer have relevance in assessing college readiness for students. An overall GPA may hide weaknesses in a specific subject. Further, students pursuing 2-year or Community and Technical Colleges (CTC) may slip through without recognition of literacy deficiencies.
+
+Perhaps there is no stronger argument for the importance of literacy skills to success in college than in a 2022 article by Amani Talwar et. al. “In the current landscape of higher education, academic reading tasks are important components of college courses and performance over time.” And further: “it is likely that many of the factors that contribute to academic reading performance are also predictive of general academic success in college” [@Talwar2022]. This research team chose to develop their own series of tests to apply to test subjects due to the potential skewing of the testing population. Outcomes of their research indicate vocabulary and reading comprehension, commonly evaluated in standardized tests, as important skills for predicting early college success.
+
+With the wealth of evidence, standardized assessments demonstrate a clear connection to post-secondary success, specifically enrollment in 2-year and 4-year colleges. However, those assessments examined occur most often toward the end of a student’s secondary school studies. SAT and ACT scores are specifically designed for college entrance assessment, and will have, by design, a skewed student population already seeking college. Similarly, AP scores and similar dual-credit courses occur most often in the last two years of secondary school, also attracting students already targeting college.
+
+SAT, ACT, and AP testing students are, by nature, preparing for these standardized tests. In fact, AP courses are designed specifically for preparing students to take AP courses. The tests themselves are designed specifically as an assessment of college readiness [@Talwar2022].
+
+If we are to increase college enrollment to 70% of the adult population, as WSAC has targeted, we need to seek opportunities beyond the self-selected college bound population. In Washington state, the SBAC tests are not subject to the focus of test-taking strategies like the SAT or ACT might be. Most students are given the SBAC simply as part of the expected school year. They do not study or prepare for the test outside of "teaching to the test" strategies that may occur as part of the standard school curriculum. However, those strategies would be applied equally across all students. Compare this to an AP course, for example, where a select number of students are choosing to take a course centered on the subject matter of the AP exam.
+
+## Annual Standardized Test Scores in College Enrollment
+
+\<Purpose of the paper:\> This paper examines the results of standardized tests given to secondary school students in Washington state on an annual basis. SBAC test results in ELA and Math have the advantage of already being implemented as part of ESSA federal requirements, being applied across the entire student population (with exceptions for students with learning disabilities), &&&
+
+\<What I will do:\> &&&
+
+\<Why it is relevant:\> By demonstrating the relevance of existing annualized testing on college enrollment, state and district educational organizations can use the information to more directly understand where gaps exist in literacy achievement and apply critical funding as appropriate. Increased enrollment in secondary education can only occur with a clear picture of where schools and school districts are not driving enrollment. &&&
+
+# Data and Methodology
+
+Washington student achievement on SBAC test results, along with enrollment in college, are reported as ratios through the Washington State Open Data Portal (<https://data.wa.gov>) and through online dashboards provided by ERDC. Through regression analysis, I will analyze SBAC test results in respect to college enrollment rates for students at individual high schools or across school districts. A possible secondary question I am considering is whether SBAC ELA scores are more relevant to post-secondary enrollment than SBAC Math scores.
+
+Due to student privacy, data is not available at the individual student level, and I will be working with overall rates of enrollment and rates of meeting test standards at the school and school district level. This introduces a potential risk of an ecological fallacy. During the project, I will consider leveraging socioeconomic factors including income level and ethnicity to control for potential issues.
+
+Additionally, SBAC scores from a single year (e.g. 11^th^ grade) may not be wholly representative of student achievement and readiness. To validate the robustness of the relationship between SBAC achievement scores and post-secondary enrollment, I intend to analyze multiple perspectives of standardized test scores:
+
+-   Most recent SBAC scores (last score reported in a school district).
+
+-   Last two SBAC scores to smooth single test variations.
+
+-   A simple aggregation of SBAC scores across all grades in a school district.
+
+-   Weighted scores across all grades emphasizing later grades over earlier.
+
+Aggregated and weighted scores across grade levels will be measured and analyzed at a school district level.
+
+I am making a deliberate choice to filter assessment data to All Students, Female, and Low-Income. Non-Low Income is assumed as (1 - Low Income). Male is assumed as (1 - Female). This does negate Gender X, or groups it as Male. However, the overall percentage of students identifying as Gender X in assessments is &&&.
+
+It should be noted that we are not measuring students. We are measuring Districts. A student, for instance, has scores that change over time, culminating, usually, in a final score in 10th or 11th grade. If we were measuring students, we would need to account for the last time a student completed an SBAC and when they enrolled in college, which can be separated by 1 or 2 years. However, in the case of this analysis, we are measuring the overall performance of a District in a given year. This is compared to the college enrollment rates of that District. With SBAC assessments used as a District level score, we can compare the District assessment results to the District enrollment rates without concern for the difference in time between a student graudating and a student enrolling.
 
 ## Methodology
 
@@ -104,11 +159,7 @@ This will be measured based on influencing variables such as:
 
 -   Rate at which test results within a District change over time.
 
--   Rate at which students participate in dual credit courses
-
--   Rate at which students graduate high school.
-
-Several variables will also be considered to control for various socio-economic factors including: ethnicity, income level, and geography.
+There are many factors that can influence a child's readiness for reading and writing throughout their schooling, including income levels, environment (e.g. urban vs. rural), gender, and ethnicity. For the purpose of this project, I will attempt to control for low-income status and gender, though recognize that additional factors may be hidden in the data. My goal is to assess how reading & writing ability, as measured through standardized testing, predict enrollment in 4-year colleges. Math scores will also be considered as a contributing factor to enrollment rates.
 
 My primary assessment of literacy capability will be based on the percent of students meeting expected standards for the ELA SBAC test. This test is administered 8 times throughout a student's secondary school education. The OSPI data includes the total number of students testing, the total number meeting standards, and the percent meeting standards. An SBAC score is a value of 1 to 4, with values of 3 and 4 indicating the student met expected standards.
 
@@ -144,8 +195,6 @@ $$
 
 ## Analysis
 
-## Directions
-
 Make sure all of your tables and figures are labeled, numbered, and have descriptive titles. Make sure they are aesthetically pleasing, with plain English variable names, legends, etc. Generate all of your tables and figures in the same Quarto document in which you write your paper, using code blocks. You should hide the code that generates the figures and tables - you only want the tables and figures themselves in the final PDF for submission. **NO RAW CODE**.
 
 You can choose to either put your tables and figures in-line with your document, or you can include them at the end of your main text as an Appendix of Tables and Figures. It's preferable that you put them in-line, but sometimes this is a formatting pain because Quarto has very strong opinions about where figures go on the page. So, the path of least resistance (and what is consistent with how you'd prepare an article for publication) is to include placeholders in between paragraphs that say something like:
@@ -162,6 +211,10 @@ At the end of this document, you'll find a few resources for and examples of tab
 
 Talk about the results of your analysis. Make sure you include tables and figures!
 
+# Discussion
+
+Discuss the results
+
 # Conclusion
 
 Summarize and wrap up.
@@ -170,34 +223,84 @@ Summarize and wrap up.
 
 # Appendix of Tables and Figures
 
-For more details about how to work with figures in Quarto, check the [Quarto documentation](https://quarto.org/docs/authoring/figures.html) (or just follow this example). Make sure all your figures are appropriately scaled, easy to read/meaningful, and have axis labels with plain English names of variables
-
-For tables, [you can make tables manually in Quarto](https://quarto.org/docs/authoring/tables.html), but it's often better to use an R package that generates nice looking tables automatically. There are lots of options for this, but a [good choice](https://haozhu233.github.io/kableExtra/) is `kable` in conjunction with `kableExtra`. For PDF documents that are rendered using LaTex, [here is the specific documentation](https://haozhu233.github.io/kableExtra/awesome_table_in_pdf.pdf).
-
-There are similarly lots of options for making nice-looking regression output. A [good choice](https://jtools.jacob-long.com/articles/summ.html) is `jtools`. You will want to install the packages `kableExtra` and `huxtable` along with `jtools`. Stargazer is another [common choice](https://libguides.princeton.edu/R-stargazer).
+This section provides reference tables and figures. Data for this section is provided by `appendix.R`.
 
 ```{r}
 #| label: fig1
-#| fig-cap: "Fuel Efficiency and Weight"
+#| fig-cap: "SBAC Scores and Enrollment Rates"
 
-library(tidyverse)
+#ggplot(mtcars, aes(x=wt, y=mpg)) + 
+#  geom_point() +
+#  xlab("Weight (in thousands of lbs)") + 
+#  ylab("Miles per Gallon")
+dfPlot <- read_rds("rds/scatter_matrix.rds")
 
-ggplot(mtcars, aes(x=wt, y=mpg)) + 
-  geom_point() +
-  xlab("Weight (in thousands of lbs)") + 
-  ylab("Miles per Gallon")
+ggplot(dfPlot, aes(x = x_value, y = percent_enrolled)) +
+  geom_point(alpha = 0.6) +
+  geom_smooth(method = "lm", se = FALSE,
+              linewidth = 0.4, color = "steelblue") +
+  facet_grid(enrollment_level ~ predictor, 
+             scales = "free_x",
+             switch = "y") +
+  labs(
+    title = "Percent Enrolled vs. ELA Score",
+    x = "ELA Score",
+    y = "Enrollment Rate"
+  ) +
+  theme_bw() +
+  theme(
+    strip.background = element_rect(fill = "gray90"),
+    strip.text.y = element_text(angle = 0, face = "bold")
+  )
+
 ```
 
 \clearpage
 
-Note: if you look at the R code, there is an option in the `kable_styling()` function - the "HOLD_position" value. This is important because it specifies that your table will go exactly where you want it in the document.
+This page includes a list of all files downloaded from the Washington State Open Data Forum: <http://data.wa.gov>.
 
 ```{r}
-library(kableExtra)
+#| results: asis
+#| message: false
+#| warning: false
 
-test_dat<-head(mtcars[, 1:4])
-kbl(test_dat,booktabs=T,caption="Example Table",format="latex") %>% kable_styling(latex_options = c("striped","HOLD_position"))
+library(knitr)
 
+df_datasets <- read_rds("rds/datasets_list.rds")
+df_out <- df_datasets %>%
+  group_by(Subject) %>%
+  summarise(
+    Description = first(Description),
+    Datasets = list(unique(Datasets)),
+    #paste(unique(Datasets), collapse = " \n"),
+    .groups = "drop"
+  )
+
+for (i in seq_len(nrow(df_out))) {
+
+  cat("### ", df_out$Subject[i], "\n\n", sep = "")
+  cat("**Description:** ", df_out$Description[i], "\n\n", sep = "")
+  cat("**Datasets:**  \n")
+
+  cat(
+    paste0(
+      df_out$Datasets[[i]],
+      "  \n"        # <-- THIS is the key: Markdown line break
+    ),
+    sep = ""
+  )
+
+  cat("\n\n")
+}
+
+#knitr::asis_output(
+#  paste0(
+#    df_out$Subject, "\n",
+#    ":   ", df_out$Description, "  \n",
+#    "    ", df_out$Datasets, "\n\n",
+#    collapse = ""
+#  )
+#)
 
 ```
 
@@ -221,5 +324,3 @@ export_summs(fit)
 \clearpage
 
 # References
-
-\[Note that references will be included here at the end of the document automatically if you use a `.bib` file and RStudio's citation tools.\]
