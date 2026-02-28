@@ -116,8 +116,8 @@ p + geom_density(alpha = 0.6,
 
 # ---- Boxplots of 4 Year Enrollment by Year ----
 # Boxplots of 4 year enrollment by year
-ggplot(data = df_enroll_year %>% filter(enrollment_level == "4 Year"),
-            mapping = aes(x = factor(year), y = percent_enrolled)) +
+ggplot(data = df_enroll_year,
+            mapping = aes(x = factor(year), y = enrollment_all)) +
   geom_boxplot() +
   labs(
     title = "Distribution of District Level Enrollment Percentages",
