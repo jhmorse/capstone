@@ -1,0 +1,955 @@
+---
+title: "Reading, 'Riting, and Registration: An Analysis of College Enrollment Across School Districts Based on Standardized Testing for Literacy"
+author: "John Morse"
+bibliography: capstone.bib
+csl: american-political-science-association.csl
+link-citations: true
+abstract: >
+ ABSTRACT: Literacy is a foundational skill strongly associated with long-term academic and postsecondary outcomes. In Washington State, reductions in early literacy funding and stagnant college enrollment rates have renewed attention on how literacy achievement is measured and how it relates to postsecondary success. This study examines the relationship between secondary school literacy achievement, as measured by English Language Arts (ELA) scores on the Smarter Balanced Assessment Consortium (SBAC) exams, and enrollment in four-year colleges at the school district level. Using socioeconomic and demographic varaibles for additional context, this document analyzes district-level SBAC ELA performance and college enrollment rates through regression models. SBAC ELA scores show statistical significance in predicting college enrollment rates but must be considered with key socioeconomic demographics including employment rates and parent education.
+
+papersize: letter
+
+margin-left: 1in
+margin-right: 1in
+margin-top: 1in
+margin-bottom: 1in
+cap-location: top
+
+format: 
+  pdf:
+    toc: true
+    toc-depth: 2
+    number-sections: true
+    linestretch: 2
+    pagestyle: plain
+    include-in-header:
+      text: |
+        \usepackage{float}
+
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+\clearpage
+
+\raggedright
+
+\setlength{\parindent}{20pt}
+
+```{r}
+#| label: libraries
+#| include: false
+library(tidyverse)
+library(glue)
+library(gt)
+library(gtsummary)    # Present regression models in a table
+library(sandwich)     # Robust standard errors: vcovHC
+library(sf)    # For consuming shapefiles
+#library(car)   # To compute Variance Inflation Factors (VIF)
+library(corrplot)  # For a correlation matrix
+```
+
+```{r}
+#| label: source_datasets
+#| include: false
+
+##
+# Source the R file that builds the necessary data sets.
+source("build-dataset.R")
+```
+
+# Introduction
+
+According to the Education Research & Data Center (ERDC) for Washington State, the rate of enrollment in 4-year colleges has remained nearly flat over the past 10 years. At the same time, ERDC reports rates of enrollment in college-prep English courses has dropped from 9% to 6% for students planning to attend a 4-year college [@ERDC2026]. With the decrease in enrollment, the Washington Student Achievement Council (WSAC) has set a goal that "70 percent of adults ages 25 to 44 should earn a post-secondary credential" [@WSAC2026Plan]. In the 10 years ending in 2024, though, WSAC measured an 18% decrease overall in post-secondary enrollment [@WSAC2026Dashboard]. Although many variables can influence a student's opportunities for attending post-secondary education, none is more fundamental than the ability to read, comprehend, and write about complex subjects at the college level.
+
+Literacy itself has a broad definition and can include word decoding, reading speed, text comprehension, reading strategies, and even motivation [@Jackson2005; @Talwar2022]. At its core, though, are the skills of reading, reading comprehension, and writing. At the secondary school level, Washington state uses standardized tests provided by the Smarter Balanced Assessment Consortium (SBAC) to track student achievement in English Language Arts (ELA) and Mathematics. These test scores provide a thread throughout secondary schooling where we can track the rate at which students are achieving expected literacy goals. At the same time, they measure the success of teaching and learning programs implemented within the schools and school districts.
+
+Budget cuts from the Washington state Legislature in 2025 eliminated the Imagination Library program, an early learning program providing books for children from birth to age 5 [@Lotmore2025]. A similar program, Prime Time Family Reading, encouraging reluctant readers and families to improve reading skills, lost 85% of funding through federal and state budget cuts [@Radil2026]. Literacy provides the base skill set of all student education, both through a student’s school years as well as beyond. In 2012, the Annie E. Casey Foundation published research on the importance of early literacy skills and poverty rates. Students who have not met expected standards in literacy by 3^rd^ grade will quickly fall behind, risking their likelihood of graduation from high school [@Hernandez2011]. Without graduation, college enrollment is not possible.
+
+This paper seeks to identify the relationship between student achievement in literacy and the likelihood of enrollment in a 4-year college or university program. I will be analyzing the relationship between ELA scores on SBAC testing and enrollment in 4-year colleges, asking the question: do higher rates of achievement on ELA standardized tests in high school indicate higher rates of enrollment in college? Based on this analysis, Washington state school administrators can leverage existing measurement tools to better understand opportunities for improving college enrollment.
+
+# Background
+
+Research has long established a close relationship between literacy and academic success. “An ability to read, and to learn from reading, is a fundamental academic skill and its importance to scholastic success in any area of study at all levels of education is widely recognized.” [@Cox2003] Many studies emphasize the link between early literacy and secondary education, and third-grade is frequently identified as a key point for reading skills in determining not just success, but graduation from high school. As many as 16% of children without proficient reading skills after third grade fail to graduate from high school on time, a statistic exacerbated further by a student’s socioeconomic status [@Hernandez2011]. Conversely, comprehensive literacy programs prior to third grade show substantial increases in reading scores on standardized tests used by states for evaluating outcomes [@Westall2023].
+
+The link continues between secondary school literacy skills and post-secondary outcomes. “\[Adults\] with a history of reading disability \[are\] less likely to pursue further education and more likely to spend a significant time in unemployment” [@James2024]. More directly, students with weak reading comprehension skills show lower scores on SATs, test results often used to determine college enrollment. In @James2024, a group of 6,800 9 year-olds in the United Kingdom were grouped by those with reading comprehension weaknesses (947), word reading weaknesses (1,383), and no reading weaknesses (4,516). Asessment and employment outcomes were tracked at ages 11, 14, 16, and 20, then analyzed through multivariate regression. Students with reading weaknesses demonstrated lower results on national assessment tests and were more likely to spend more than 12 months not in education, employment, or training. @Westall2023, on the other hand, examined the relationship between state literacy programs and assessment results across 45 states using group-time average treatment effects to account for different points in time when the programs were implemented. Both @James2024 and @Westall2023 measured performance boosts in both reading and math scores for students based on literacy. Of note, though, is the close relationship between literacy and socioeconomic or demographic variables considered, including income, race/ethnicity, and parent education or employment.
+
+When students are not meeting expected literacy standards, they are often moved into remedial programs. An unfortunate side-effect of such programs is that students may get “tracked” in remedial courses, resulting in fewer opportunities to succeed elsewhere in their education, and ultimately impacting college enrollment. Regression discontinuity analysis of students in Florida required to enroll in remedial reading courses in high school were 5.4% less likely to enroll in either a 2-year or 4-year college program [@Ozek2025]. Though that gap in enrollment could be explained through either income (Free And Reduced Lunch programs, FARL) or race, according to @Ozek2025, tracking in remedial programs accounted for half the impact on enrollment.
+
+The topic is hardly unique to the United States or the English language. A 2014 study based in Spain identified student literacy, again through standardized testing and found that reading skills and reading comprehension capability measured in earlier grades affects outcomes of later grades. ANOVA techniques comparing students with reading difficulties to their peers without difficulties showed significant differences in the quality of writing about materials read as part of the study [@Fidalgo2014].
+
+Similarly, research in Finland found that reading and spelling capability assessed at the end of primary school (9^th^ grade) predicted secondary school choices, tracking students into either general education (a college-bound track) or vocational education. A chi-square difference test demonstrated higher school achievement based on both language skills and gender, while parent occupation did not [@Savolainen2008], contradicting any notion that students might be "tracked" based on work environment of their parents.
+
+The assessment of literacy skills in earlier grades (i.e. US secondary school) ultimately predicts college enrollment and post-secondary outcomes. As @Talwar2022 indicate, “many of the factors that contribute to academic reading performance are also predictive of general academic success in college.” Despite the clear impact of literacy skills on student outcomes both in high school and beyond, there is evidence that colleges may have set aside the need for literacy standards for student acceptance. A 2010 study at the University of Prince Edward Island compared the reading comprehension of first-year university students to the broader population of Canada and found no difference in skills, indicating literacy skills were not deemed relevant to college enrollment [@Graham2010]. Five years earlier, a University of Iowa study analyzed correlation across multiple literary skills and the academic achievement of students. The study determined there was no strong relationship between literacy skills and academic success [@Jackson2005]. The question is, then, how important are reading and reading comprehension skills to college enrollment and college success?
+
+The University of Iowa student population was restricted to fewer than 200 second and third-year students in a single educational psychology class. The author, @Jackson2005, describes the subjects as “mature, successful students” and "a relatively elite group of adult readers," thus nullifying the analysis as to whether their literacy skills lead to academic success - they are already "successful." Students without the skills to succeed "would have been selected out." The research in Canada was limited to just over 220 students. Though gender was a factor of consideration, there was no analysis of socioeconomic or other demographic variables [@Graham2010], leaving open many possible variables that could explain the lack of differences. These limited samples prevent a definitive answer on the importance of literacy of secondary school students and their post-secondary opportunities.
+
+Are reading comprehension scores on standardized tests valid for assessing whether students are ready for college? Some universities wave the requirement for demonstrated reading comprehension and writing skills, choosing instead to enroll them in developmental or remedial reading courses as part of their first term. Completing such courses proves beneficial, as those students, previously unprepared, went on to complete college at the same rate as their peers [@Cox2003].
+
+As indicated above, a common thread to the assessment of student literacy at all levels is the application of standardized tests of reading and reading comprehension. Though standardized testing is hardly new, attention to testing increased in the United States with the No Child Left Behind (NCLB) act in 2002 implemented by the Bush administration. NCLB was updated in 2015 as the Every Student Succeeds Act (ESSA) by the Obama administration. A key requirement of ESSA (and NCLB before it) was the implementation of standardized testing for reading and math in grades 3 through 8, and at least once in high school [@us_congress_essa_2015].
+
+Perhaps there is no stronger argument for the importance of literacy skills testing than in a 2022 article by @Talwar2022. “In the current landscape of higher education, academic reading tasks are important components of college courses and performance over time.” Through regression analysis, their research identifies vocabulary and reading comprehension, commonly evaluated in standardized tests, as important skills for predicting early college success and, therefore, an important consideration in enrollment acceptance. "Traditional" measurements of college readiness were also included, specifically ACT scores and high school GPA. The authors determined that specific tests for vocabulary and comprehension did not predict college success better than these traditional measurements. Perhaps then, we can turn to the assessment tools already in place.
+
+Research relating standardized test results to college enrollment has primarily emphasized college acceptance tests like the ACT and SAT. Literacy in third grade correlates with ELA standardized tests results (e.g. ACT) in middle grades, which, in-turn, relate to enrollment in honors and dual-credit courses [@Hein2013]. Those advanced courses, e.g. Advanced Placement (AP) and International Baccalaureate (IB) are subsequently correlated with college enrollment. But with universities waving the requirement for college entrance exams in the wake of the pandemic [@Schwartz2021; @BauerWolf2020], these tests may no longer have relevance in assessing college readiness for students. So how do we judge a student’s college readiness? Correlation analysis across SAT scores, SBAC scores (both ELA and math), race, and socioeconomic status, has indicated simple high school GPAs may provide a strong predictor of college success [@Kurlaender2019; @Geiser2007]. An overall high school GPA, though, may hide students' weaknesses in specific subjects. Alternatively, focusing on GPAs for only college-preparatory courses may eliminate students from eligibility if they are not in a traditional college-prepratory track in school.
+
+SAT, ACT, and AP exams are specifically designed for college entrance assessment, and will have, by design, a skewed student population already seeking college. The tests themselves are designed specifically as an assessment of college readiness [@Talwar2022]. SBAC testing, on the other hand, has been shown to be as relevant as the SAT in predicting college success [@Kurlaender2019]. If we are to increase college enrollment to 70% of the adult population, as WSAC has targeted, we need to seek opportunities beyond the self-selected college bound population. In Washington state, the SBAC tests are not subject to the focus of test-taking strategies like the SAT or ACT might be. Most students are given the SBAC simply as part of the expected school year. Though many teachers may provide curriculum that can be described as "teaching to the test," this curriculum is applied equally across all students and will be integrated into standard school curriculum. Compare this to an AP course, for example, where a select number of students are choosing to take a course centered on the subject matter of the AP exam, an exam aimed specifically at college enrollment.
+
+The NCLB (and subsequently ESSA) act specifically requires standardized testing for the purpose of identifying differences in the quality of education provided by different schools and school districts [@Wiliam2010], rewarding those that do well. With that in mind, the SBAC ELA tests are a direct evaluation of the literacy programs in schools. With literacy identified as a primary skill for college success, and SBAC tests identified as a primary means of measuring literacy programs in secondary schools, we can expect a relationship between the SBAC ELA outcomes in a school district and the rate of enrollment in college of students in that district.
+
+When it comes to evaluating school district performance and achievement, few states can boast as diverse of a population as Washington. A simple approach to understanding the diversity in the state is to draw a line that follows the Cascade mountain range north to south. On the west side of the range is the Puget Sound region, with dense urban and suburban populations dominated by high-tech, aerospace, and the largest coffee company in the world. East of the cascades is a spread-out rural landscape dominated by agriculture. Demographics across school districts, then, are as diverse as the landscape, and those demographics can affect post-secondary outlooks and college enrollment.
+
+Prior to the SBAC tests, Washington administered the Washington Assessment of Student Learning (WASL), and a 2008 study explored the relationship between socioeconomic status (SES) and student achievement [@Diaz2008]. Linear regression revealed that SES, an aggregate of income and education among other statistics, served a stronger role in predicting reading success on the WASL exams than either district size or district financial resources. Entity-fixed effects based on school districts, therefore, are not a consideration for this research. Socioeconomic and demographic statistics, however, are included.
+
+Consideration of variables outside schooling and academics has multiple aspects of importance. As @Geiser2007 indicates, many universities give extra consideration towards applicants from disadvantaged backgrounds or schools. Finally, standardized test results can be correlated with background factors, reflecting student environment outside of school. The strategy here is to select a representation of control variables aligned with similar research including @Wiliam2010, @Geiser2007, and @Savolainen2008. These include gender, income, employment status, and parent education levels.
+
+This paper examines the results of standardized tests given to secondary school students in Washington state. When SBAC tests launched in Washington in 2015, then State Superintendent of Public Instruction Randy Dorn set goals to encourage colleges to use 11th grade SBAC results as a key acceptance measure for college enrollment [@spokesman2015]. Accordingly, this paper proposes the hypothesis:
+
+> *Results from annual SBAC ELA tests given near the end of secondary school can predict college enrollment outcomes across school districts in Washington state.*
+
+By demonstrating the relevance of existing annualized testing on college enrollment, Washington state school officials could use standardized tests to track progress within school districts toward meeting state goals of post-secondary enrollment. State and district educational organizations can use the information to more directly understand where gaps exist in literacy achievement and apply critical funding as appropriate. Increased enrollment in post-secondary education can only occur with a clear picture of where school districts are successfully encouraging that enrollment.
+
+# Data and Methodology
+
+## Data
+
+Washington student achievement on SBAC test results, along with enrollment in college, are reported as ratios through the Washington State Open Data Portal (<https://data.wa.gov>) and through online dashboards provided by ERDC.[^1] Note that SBAC Assessments were not administered during the 2019-20 or 2020-21 school years due to the COVID-19 pandemic.
+
+[^1]: SBAC Assessment data for the 2023-24 school year can be accessed here: <https://data.wa.gov/education/Report-Card-Assessment-Data-2023-24-School-Year/x73g-mrqp/about_data>. All data for college enrollment can be accessed through this site: <https://data.wa.gov/education/High-School-Graduate-Outcomes-First-Year-Enrollmen/vk6s-am8z/about_data>.
+
+Enrollment and SBAC Assessment data were joined based on school-district and enrollment year with adjustments to assessment data as described in the next section. Additionally, school and school district reference data was obtained through the Office of the Superintendent of Public Instruction (OSPI).[^2]
+
+[^2]: School and School District reference data obtained from the Office of the Superintendent of Public Instruction (OSPI) through the web site here: <https://eds.ospi.k12.wa.us/DirectoryEDS.aspx>.
+
+Control variables were obtained through the United States Census Bureau. Data was downloaded for the years 2014 to 2024 as 5-year estimates based on the American Community Survey. Data is collected over a period of five years and averaged to obtain the most accurate estimate of population, employment, and education.[^3]
+
+[^3]: Data was obtained at the school district level for Selected Economic Characteristics (<https://data.census.gov/table?q=DP03&g=040XX00US53>) and Educational Attainment (<https://data.census.gov/table/ACSST1Y2024.S1501?q=education+attainment&g=040XX00US53,53$9700000>).
+
+@tbl-summarystats provides summary statistics for all variables used in this document. At the top of the table is the primary explanatory or predictor variable: the rate at which students within a school district have met expected standards for the SBAC ELA test. At the bottom of the table, then, is the dependent variable: the rate at which students within a district enroll in a 4-year college. Note that observations range from 2,388 for school district college enrollment rates to 947 for the percentage of adults within a school district that have a Bachelor's degree or higher.
+
+```{r}
+#| echo: false
+#| label: tbl-summarystats
+#| tbl-cap: Summary Statistics
+#| tbl-pos: H
+
+make_summary_table <- function(data, vars, labels) {
+  
+  data %>%
+    summarise(
+      across(
+        all_of(vars),
+        list(
+          n      = ~sum(!is.na(.x)),
+          median = ~median(.x, na.rm = TRUE),
+          sd     = ~sd(.x, na.rm = TRUE),
+          min    = ~min(.x, na.rm = TRUE),
+          max    = ~max(.x, na.rm = TRUE)
+        ),
+        .names = "{.col}_{.fn}"
+      )
+    ) %>%
+    pivot_longer(
+      cols = everything(),
+      names_to   = c("variable", "stat"),
+      names_pattern = "(.*)_(n|median|sd|min|max)$",
+      values_to  = "value"
+    ) %>%
+    pivot_wider(
+      names_from  = stat,
+      values_from = value
+    ) %>%
+    mutate(
+      across(c(median, sd, min, max), ~ round(.x, 2)),
+      n = as.integer(n),
+      variable = factor(variable, levels = vars),
+      variable_label = labels[variable]
+    ) %>%
+    arrange(variable) %>%
+    select(variable_label, n, median, sd, min, max)
+}
+
+vars_ela <- c("ela_met")
+labels_ela <- c(ela_met = "SBAC ELA: Met Standards")
+
+summary_df_ela <- make_summary_table(
+  df_assess_final_adj,
+  vars_ela,
+  labels_ela
+)
+
+vars_control <- c(
+  "ela_li_ratio", "ela_female_ratio", 
+  "employment_rate", "med_income_household",
+  "health_insurance_rate", "bachelor_pct"
+)
+
+labels_control <- c(
+  ela_li_ratio         = "Low-Income Students",
+  ela_female_ratio     = "Female Students",
+  employment_rate      = "Employment Rate",
+  med_income_household = "Median Income ($k)",
+  health_insurance_rate = "Health Ins. Rate",
+  bachelor_pct         = "Bachelor Degree Rate"
+)
+
+summary_df_control <- make_summary_table(
+  dfCapLastGradeAdj,
+  vars_control,
+  labels_control
+)
+
+vars_enroll <- c("enrollment_all")
+labels_enroll <- c(enrollment_all = "College Enrollment")
+
+summary_df_enroll <- make_summary_table(
+  df_enroll_year,
+  vars_enroll,
+  labels_enroll
+)
+
+summary_df <- bind_rows(
+  summary_df_ela,
+  summary_df_control,
+  summary_df_enroll
+)
+
+# Convert to gt table
+summary_df %>%
+  gt() %>%
+  opt_table_font(size = 10) %>%   # reduce font size
+  tab_options(
+    table.width = pct(85)   # Scale table to 90% of text width
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  cols_label(
+    variable_label = "Variable",
+    n        = "N",
+    median   = "Median",
+    sd      = "SD",
+    min      = "Min",
+    max      = "Max"
+  ) %>%
+  tab_style(   # format column headings with bold
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  tab_style(   # format first column with bold
+    style = cell_text(weight = "bold"),
+    locations = cells_body(columns = variable_label)
+  )
+
+
+```
+
+As mentioned, my primary assessment of literacy capability is based on the ratio of students meeting expected standards for the SBAC ELA test. This test is administered 8 times throughout a student's secondary school education. The OSPI data includes the total number of students testing, the total number meeting standards, and the percent meeting standards (captured as a ratio). An SBAC score is a value of 1 to 4, with values of 3 and 4 indicating the student met expected standards.
+
+```{r}
+#| label: map_data
+#| include: false
+
+# This section is here to import mapping data only.
+# The data is used in subsequent map charts.
+
+#path <- "../data/districts/"
+path <- "districts/"
+# Read the shapefile for school districts
+wa_sd <- st_read(glue("{path}WashingtonSchoolDistricts.shp")) %>%
+  rename(district_code = LEACode_1) %>%
+  mutate(district_code = as.character(district_code))
+```
+
+For this study, SBAC results are obtained for the highest grade level in a school district in which the SBAC was administered in a given year. In most cases, this is 11th, 10th, or 8th grade, which represents 90% of the assessment results available. Assuming students graduate high school in 12th grade, this places scores close to college enrollment. SBAC tests occur in Spring and enrollment decisions are made the following Spring. Assessment results are shifted by the number of years between the test being administered and the student being eligible for college enrollment as described in the Methodology section of this document. @fig-mapassessment shows the range of SBAC ELA results across school districts in Washington state for a single year, 2024. Note that despite clusters of higher and lower scores, there is no clear pattern for SBAC results.
+
+```{r}
+#| label: fig-mapassessment
+#| echo: false
+#| fig-cap: SBAC ELA Assessment in Washington by District (2024)
+#| fig-height: 2.25
+#| fig-pos: H
+#| fig-width: 4.25
+
+# Get Assessment data for 2023-24 school year,
+# and filter for all students ELA results.
+dfMapAssessment <- df_assess_year %>%
+  filter(year_test == 2024,
+         grade_level == "All Grades",
+         student_group == "All Students",
+         test_subject == "ELA")
+
+# Create a data set with the county map data
+dfMapAssessment <- wa_sd %>%
+  left_join(dfMapAssessment, 
+            by = c("district_code" = "district_code"))
+
+# Plot
+ggplot(dfMapAssessment, mapping = aes(fill = pct_met)) +
+  geom_sf(color = "white") +
+  scale_fill_gradient2(midpoint=median(dfMapAssessment$pct_met, 
+                                       na.rm = TRUE),
+                       low = "darkred", high = "#08306B",
+                       name = "Percent Met\nStandards", 
+                       label = scales::percent,
+                       na.value = "lightgray") +
+  theme_void() +
+  theme(legend.position = "right",
+        plot.title = element_text(size=rel(1.5), face="bold")) +
+  labs(caption = glue("Mid-point at median of ", 
+                      median(dfMapAssessment$pct_met, na.rm = TRUE) * 100,
+                      "%"),
+       x = NULL, y = NULL)
+
+```
+
+Analysis at the school district level may introduce ecological fallacies due to aggregated results. @Wiliam2010 previously determined that inclusion of socioeconomic factors may, in fact, influence differences between schools more than the actual differences in education. In an effort to control for potential Omitted Variable Bias (OVB), several control variables are introduced.
+
+The time period considered in this analysis is for the 2014-15 to 2023-24 school years, including school years covering the COVID-19 pandemic. The SBAC testing year is converted to a dummy variable as described in the Methodology section of this document. Further, several socioeconomic and demographic control variables are included from both SBAC testing and Census data. These statistics have been chosen to align with socioeconomic and demographic statistics used in prior studies as described earlier in this document. Median household income, and low income percentages provide economic status for the sample, while gender is represented by the percent of students testing that are female. Parent education is represented with the rate of bachelor degree attainment within the population. Finally, health insurance is included as an additional socioeconomic factor that may impact student health and well-being.
+
+Important to note in @tbl-summarystats is the difference in observations. Low-Income Students and Female Students show the highest number of observations and are sourced from the same data as the SBAC ELA scores. Employment Rate, Median Income, and Health Insurance Rate are all sourced from US Census data and have about 190 fewer observations, leading to a likely loss in the overall data set when joined to the student testing data.
+
+The rate of Bachelor degree attainment shows the fewest observations with more than one-third fewer records than the SBAC ELA data. Parent education influenced outcomes in the studies conducted by @Geiser2007, @Jackson2005, and @James2024. I have chosen education across the census population to support the same potential influence. However, the scarcity of the results is evident in specific years. @tbl-bacheloryear shows how the observations are distributed based on the year of enrollment versus the year of SBAC testing.
+
+```{r}
+#| label: tbl-bacheloryear
+#| echo: false
+#| tbl-cap: "Bachelor Degree by Enrollment Year and Testing Year"
+#| tbl-pos: H
+
+# Group by year of enrollment
+dfGroupYear <- dfCapLastGradeAdj %>%
+  filter(year != 2025) %>%
+  group_by(year) %>%
+  summarise(n_bachelor = sum(!is.na(bachelor_pct))) %>%
+  complete(year = 2015:2024, fill = list(n_bachelor = 0))
+
+# Group by year of testing
+dfGroupYearTest <- dfCapLastGradeAdj %>%
+  group_by(year_test) %>%
+  summarise(n_bachelor = sum(!is.na(bachelor_pct))) %>%
+  complete(year_test = 2015:2024, fill = list(n_bachelor = 0))
+
+# Combine the data and reshape
+dfGroupYear <- dfGroupYear %>%
+  left_join(dfGroupYearTest, by = c("year" = "year_test")) %>%
+  rename('Enrollment' = n_bachelor.x,
+         'SBAC Testing' = n_bachelor.y) %>%
+  pivot_longer(
+    cols = c(Enrollment, `SBAC Testing`),
+    names_to = "Year Of",
+    values_to = "value"
+  ) %>%
+  pivot_wider(names_from = year,
+              values_from = value)
+
+
+dfGroupYear %>%
+  gt() %>%
+  opt_table_font(size = 10) %>%   # reduce font size
+  tab_options(
+    table.width = pct(85)   # Scale table to 90% of text width
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  tab_style(   # format column headings with bold
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  tab_style(   # format first column with bold
+    style = cell_text(weight = "bold"),
+    locations = cells_body(columns = 1)
+  )
+```
+
+As time-fixed effects are implemented based on SBAC testing, the introduction of the Bachelor's degree attainment percentages as a control variable will require removing years with low or no results for this variable, specifically 2016, 2020, 2021, 2023, and 2024. This sparsity in degree attainment data when analyzed across years suggests the variable can not properly be analyzed with time-fixed effects. I chose to retain the variable due to the frequent reference to parent education across the literature, as indicated above. However, the final regression analysis will separate this variable from time-fixed effects based on SBAC testing year and present two separate models for consideration. Note there is also a risk of collinearity for degree attainment in relation to other control variables, which will be examined in the **Analysis** section of this document.
+
+Based on WSAC goals of 70% post-secondary college enrollment [@WSAC2026Plan], this study focuses on enrollment rates of students in 4-year colleges and universities. Note that student success can be measured in many ways, including enrollment in 2-year colleges or technical schools, enlistment in the military, or regular employment and earning a salary at or above median income. This study uses 4-year college enrollment as the outcome most aligned to WSAC goals. As a point of comparison to the earlier map of SBAC ELA results, the following chart shows the distribution of college enrollment rates across Washington school districts.
+
+```{r}
+#| label: fig-mapenrollment
+#| echo: false
+#| fig-cap: Percent of Population Enrolled in 4-Year College (2024)
+#| fig-height: 2.25
+#| fig-pos: H
+#| fig-width: 4.25
+
+dfMapEnrollment <- df_enroll_year %>%
+  filter(year == 2024)
+
+# Create a data set with the county map data
+dfMapEnrollment <- wa_sd %>%
+  left_join(dfMapEnrollment, 
+            by = c("district_code" = "district_code"))
+
+# Plot
+ggplot(dfMapEnrollment, mapping = aes(fill = enrollment_all)) +
+  geom_sf(color = "white") +
+  scale_fill_gradient2(midpoint=median(dfMapEnrollment$enrollment_all, 
+                                       na.rm = TRUE),
+                       low = "darkred", high = "#08306B",
+                       name = "Percent\nEnrolled", 
+                       label = scales::percent,
+                       na.value = "lightgray") +
+  theme_void() +
+  theme(legend.position = "right",
+        plot.title = element_text(size=rel(1.5), face="bold")) +
+  labs(caption = glue("Mid-point at median of ", 
+                 median(dfMapEnrollment$enrollment_all, na.rm = TRUE) * 100,
+                 "%"),
+       x = NULL, y = NULL)
+
+```
+
+## Methodology
+
+Combining college enrollment and SBAC assessment data requires shifting the SBAC test results by 1, 2, or 4 years to match enrollment. For this analysis, I have identified the last grade for a school district in a year, and shifted that data by the appropriate number of years to match with enrollment. For example, in districts where SBAC was administered in 11th grade for the last time for a cohort, the students in that grade graduated and would enroll in college one year later. This assumes no "gap" years prior to college enrollment.
+
+With this adjustment, we have 2,112 district/year combinations for SBAC test assessment across 318 unique school districts in Washington State. For college enrollment, between 2015 and 2025, we have 2,431 district/year combinations across 229 school districts. When joining this data, based on shifting years to match enrollment, we lose a portion of the assessment results and enrollment results as seen in @tbl-combined.
+
+```{r}
+#| label: tbl-combined
+#| echo: false
+#| tbl-cap: Summary Statistics - Combined College Enrollment and SBAC Data
+#| tbl-pos: H
+
+# variables to be summarized
+vars_combined <- c(
+  "enrollment_all", "ela_met"
+)
+
+var_labels <- c(
+  enrollment_all = "College Enrollment",
+  ela_met = "SBAC ELA: Met Standards"
+)
+
+
+# Build the summary data set for display in a table
+summary_df <- dfCapLastGradeAdj %>%
+  summarise(
+    across(
+      all_of(vars_combined),
+      list(
+        median = ~median(.x, na.rm = TRUE),
+        sd     = ~sd(.x, na.rm = TRUE),
+        min    = ~min(.x, na.rm = TRUE),
+        max    = ~max(.x, na.rm = TRUE),
+        n      = ~sum(!is.na(.x))
+      ),
+      .names = "{.col}_{.fn}"
+    )
+  ) %>%
+  pivot_longer(
+    cols = everything(),
+    names_to   = c("variable", "stat"),
+    names_pattern = "(.*)_(median|sd|min|max|n)$",
+    values_to  = "value"
+  ) %>%
+  pivot_wider(
+    names_from  = stat,
+    values_from = value
+  ) %>%
+  mutate(
+    across(c(median, sd, min, max), ~ round(.x, 2)),
+    n = as.integer(n),
+    variable = factor(variable, levels = vars_combined),
+    variable_label = var_labels[variable]
+  ) %>%
+  arrange(variable) %>%
+  select(variable_label, n, median, sd, min, max)
+
+# Convert to gt table
+summary_df %>%
+  gt() %>%
+  opt_table_font(size = 10) %>%   # reduce font size
+  tab_options(
+    table.width = pct(85)   # Scale table to 90% of text width
+  ) %>%
+  cols_align(
+    align = "center",
+    columns = everything()
+  ) %>%
+  cols_label(
+    variable_label = "Variable",
+    n        = "N",
+    median   = "Median",
+    sd       = "SD",
+    min      = "Min",
+    max      = "Max"
+  ) %>%
+  tab_style(   # format column headings with bold
+    style = cell_text(weight = "bold"),
+    locations = cells_column_labels(everything())
+  ) %>%
+  tab_style(   # format first column with bold
+    style = cell_text(weight = "bold"),
+    locations = cells_body(columns = variable_label)
+  )
+```
+
+College Enrollment dropped to 1,528 records compared to our 2,431 previously examined, while SBAC ELA results were reduced to 1,389 records compared to 2,112 before joining the data. This shows a 37% data loss for enrollment data and a 34% data loss for SBAC assessment results due to mismatch in assessment results and enrollment. The total number of records remaining, though, allows sufficient data to complete the analysis.
+
+The final analysis will be based on polynomial regression with control variables for time-fixed effects (the year of SBAC testing), and the number of years between testing and enrollment. Additional control variables will be included as described in the previous section of this document. In a similar analysis of literacy policies and student achievement across states, @Westall2023 made use of two-way fixed effects with ordinary least squares. Exploratory analysis of the data in my research found no significant advantage to using two-way fixed effects on district and year. However, inclusion of socioeconomic and demographic controls did show significance, aligning with @Westall2023 as well as additional research from @Geiser2007, @Hernandez2011, @James2024, @Ozek2025, @Savolainen2008, and @Talwar2022.
+
+Regression will be handled by grouping the control variables into three sets, as well as a final analysis based on variables showing statistical significance. In each case, the year of SBAC testing and numbers of years to enrollment will also be included, as described above. The Analysis section below provides additional visibility into the data and the factors influencing these choices.
+
+# Analysis
+
+Examining ELA assessment results by school year, our range of values across school districts show extensive variance. The boxplots provided in @fig-boxelamet show median values that range from 0.37 in 2014-15 to 0.74 in the following school year, 2015-16. The following three years demonstrate a slow decline from that peak, followed by a sudden drop in the post-pandemic years, from 0.67 in 2018-19 to 0.60 and lower in the 2021-22 and later school years. Note that no testing was conducted during the two COVID pandemic school years.
+
+```{r}
+#| label: fig-boxelamet
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: Rate of School Districts Meeting SBAC ELA Standards
+#| fig-height: 3
+#| fig-pos: H
+
+# Boxplot
+p1 <- ggplot(data = df_assess_final_adj,
+             mapping = aes(x = factor(school_year), y = ela_met)) +
+  geom_boxplot(color = "darkgray", fill = "darkred") +
+  theme_minimal() +
+  theme(plot.subtitle = element_text(face="bold")) +
+  labs(
+    #title = "Rate of School Districts Meeting SBAC ELA Standards",
+    #subtitle = "Last grade tested in school district",
+    x = "School Year",
+    y = "% Students Meeting Standards"
+  )
+p1
+```
+
+Interestingly, maximum achievement rates saw less variance across the school years, never dropping below 0.90 even after the pandemic. The implication is that school districts performing at the top of the range have consistent results, while school districts across the state have varying outcomes from year to year. The low results for the 2014-15 school year are due to the introduction of the new test format, new curriculum, an opt-out rate as high as 53%, and even low student motivation in the SBAC exam's first year in Washington state [@strauss2015; @spokesman2015].
+
+College enrollment demonstrates a more stable trend year to year as evident in @fig-boxenrollment.
+
+```{r}
+#| label: fig-boxenrollment
+#| echo: false
+#| fig-cap: Enrollment in 4-Year Colleges by Year
+#| fig-height: 3
+#| fig-pos: H
+
+# Boxplot
+p1 <- ggplot(data = df_enroll_year,
+             mapping = aes(x = factor(year), y = enrollment_all)) +
+  geom_boxplot(color = "darkgray", fill = "darkblue") +
+  theme_minimal() +
+  theme(plot.subtitle = element_text(face="bold")) +
+  labs(
+    x = "Year",
+    y = "Enrollment Rate"
+  )
+p1
+```
+
+Median enrollment rates hover around 0.25 or 25% of all students enrolling in a 4-year college. Unfortunately, this is substantially lower than the 70% rate of enrollment targeted by the WSAC. Note that school districts showed only a small reduction in enrollment rates for 2020, the primary pandemic year. Even those districts attaining the maximum enrollment rates of 0.80 in 2019 dropped to only 0.75 in 2020. Most districts above the 0.60 enrollment rate, as indicated in @fig-boxenrollment, are outliers, further challenging the goal of 70%.
+
+@fig-scatter is a visualization of the relationship between SBAC ELA assessment results and 4-year college enrollment. Each point is an individual school district for a specific school year.
+
+```{r}
+#| label: fig-scatter
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: College Enrollment and ELA Assessment
+#| fig-height: 3
+#| fig-pos: H
+#| fig-width: 6
+
+dfTwoYears <- dfCapLastGradeAdj %>%
+  filter(year %in% c(2018, 2021))
+
+ggplot() +
+  # --- Background: all years ---
+  geom_point(
+    data = dfCapLastGradeAdj,
+    aes(x = ela_met, y = enrollment_all),
+    alpha = 0.3, color = "darkgray"
+  ) +
+  geom_smooth(
+    data = dfCapLastGradeAdj,
+    aes(x = ela_met, y = enrollment_all, color = "All Years"),
+    method = "loess", se = FALSE,
+    linewidth = 1
+  ) +
+
+  # --- Highlighted years ---
+  geom_smooth(
+    data = dfTwoYears,
+    aes(x = ela_met, y = enrollment_all, color = factor(year)),
+    method = "loess", se = FALSE,
+    linewidth = 0.75
+  ) +
+
+  # --- Scales, theme, labels ---
+  scale_color_manual(
+    values = c("All Years" = "black",
+               "2018" = "steelblue", 
+               "2021" = "firebrick"),
+    name = "Highlighted Years"
+  ) +
+  scale_x_continuous(labels = scales::percent) +
+  scale_y_continuous(labels = scales::percent) +
+  theme_minimal() +
+  labs(
+    x = "% Meeting SBAC ELA Standards",
+    y = "% Enrolling in College"
+  )
+
+```
+
+The plot shows a non-linear relationship, where higher rates of SBAC achievement relate to higher rates of enrollment. As @fig-scatter includes a mix of school districts and school years, the relationship curve for two specific years, 2018 and 2021, have been highlighted. The individual years confirm the non-linear relationship, with enrollment rates increasing exponentially as the rate of students meeting ELA assessment standards increases.
+
+Note that @fig-scatter shows a number of instances with high enrollment when ELA assessments remained low, pushing the curve up at the low end of assessment scores. The majority of these instances of high enrollment with low assessment results occurred in 2016 and can be directly attributed to 11th graders taking the SBAC for the first time in the 2014-15 school year. As discussed earlier, Washington state first adopted the SBAC tests in the Spring of 2015 [@sbe_2015], and 2016 would have been the first year 11th graders could enroll in college. Multiple factors contributed to these lower assessment rates, skewing enrollment / assessment analysis as we saw earlier in @fig-boxelamet. Because two-thirds of the data points in this portion of the chart can be attributed to 2016, that year will be removed from the final analysis.
+
+```{r}
+#| label: remove2016
+#| include: false
+
+dfCapLastGradeAdj <- dfCapLastGradeAdj %>%
+  filter(year != 2016)
+```
+
+Predictor variables identified for this analysis come from two primary sources: the ELA Testing within Washington State, including income level and gender, and US Census bureau tracking of employment, income, and education. There are clear opportunities for the introduction of multicollinearity across any variables related to income, education, and employment. @fig-correlation highlights potential areas of concern impacting the subsequent regression based on a correlation matrix.
+
+```{r}
+#| label: fig-correlation
+#| echo: false
+#| message: false
+#| warning: false
+#| fig-cap: Correlation Matrix of Predictor Variables
+#| fig-height: 3
+
+# Get the variables to assess correlation
+vars <- c("ela_met", "ela_li_ratio", "ela_female_ratio",
+          "employment_rate", "med_income_household",
+          "health_insurance_rate", "bachelor_pct")
+
+corr <- cor(dfCapLastGradeAdj[vars], use = "pairwise.complete.obs")
+# Rename rows and columns
+colnames(corr) <- rownames(corr) <- c(
+  "ELA Met",
+  "Low Income Ratio",
+  "Female Ratio",
+  "Employment Rate",
+  "Median Income",
+  "Health Insurance",
+  "Bachelor Degree"
+)
+
+# Heatmap
+corrplot(
+  corr,
+  method = "color",      # colored tiles
+  type = "upper",        # upper triangle only
+  tl.col = "black",      # text label color
+  tl.srt = 45,           # rotate labels
+  addCoef.col = NA,       # omit numbers on tiles (cleaner)
+  tl.cex = 0.7,
+  number.cex = 0.6,
+  cl.cex = 0.6
+)
+
+```
+
+The most significant correlation is the relationship between Median Income and the ratio of the population with a Bachelor's degree or higher. This is a primary concern that impacts regression results in @tbl-regression as discussed below.
+
+Initial regression analysis confirmed that a quadratic model fit the data more closely than linear, with an R^2^ of 0.32 versus 0.10 for the linear model. Additionally, year-fixed effects based on the year of SBAC testing showed significance in the model with p-values \< 0.001. However, the introduction of the gap variable, the number of years between testing and expected college enrollment, showed p-values between 0.053 and 0.3. Based on these initial results, analysis is based on a quadratic regression with time-fixed effects but without the gap variable. For readability of regression results in @tbl-regression, coefficients related to testing years are hidden.
+
+Standard errors in all regression models are adjusted for heteroskedasticity using the HC1 estimator. As seen in prior tables and charts, variation across school districts exists in several key variables for this analysis including SBAC testing results and census results. Based on earlier assessment of control variables, there is definite loss of data based on inclusion of SBAC ELA demographics, census socioeconomic variables, and census education data. @tbl-regression considers each group of control variables separately to get an understanding of where the most important controls may be, while minimizing data loss. Note that as shown earlier in this document, specific testing years are removed from the model that includes Bachelor degree attainment due to sparse data for those years.
+
+```{r}
+#| label: tbl-regression
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: Regression of Enrollment by SBAC ELA - Control Groups
+#| out-width: "100%"
+
+# ELA Test Taker demographics
+model_ela_controls <- lm(
+  enrollment_all ~ ela_met + I(ela_met^2) +
+    ela_li_ratio + ela_female_ratio +
+    factor(year_test),
+  data = dfCapLastGradeAdj
+)
+
+# Census data
+model_census_controls <- lm(
+  enrollment_all ~ ela_met + I(ela_met^2) +
+    employment_rate + med_income_household + 
+    health_insurance_rate + factor(year_test),
+  data = dfCapLastGradeAdj
+)
+
+# Filter out years with few or no observations for bachelor_pct
+dfEdu <- dfCapLastGradeAdj %>%
+  filter(!year_test %in% c(2016, 2023))
+
+# Bachelor degrees
+model_edu_controls <- lm(
+  enrollment_all ~ ela_met + I(ela_met^2) +
+    bachelor_pct + factor(year_test),
+  data = dfEdu
+)
+
+# Calculate Robust vcov matrices
+vcov_ela <- vcovHC(model_ela_controls, type = "HC1")
+vcov_census <- vcovHC(model_census_controls, type = "HC1")
+vcov_edu <- vcovHC(model_edu_controls, type = "HC1")
+
+# Build tables for display
+t1 <- tbl_regression(model_ela_controls,
+                     vcov = vcov_ela,
+                     include = c(
+                       "ela_met",
+                       "I(ela_met^2)",
+                       "ela_li_ratio",
+                       "ela_female_ratio"
+                     ),
+                     label = list(
+                       ela_met ~ "ELA Met",
+                       `I(ela_met^2)` ~ "ELA Met²",
+                       ela_li_ratio ~ "Low Income Student",
+                       ela_female_ratio ~ "Female Student"#,
+                       #`factor(year_test)` ~ "Year Tested"
+                     )) %>%
+  add_glance_table(include = c(r.squared, adj.r.squared, nobs, df.residual))
+
+t2 <- tbl_regression(model_census_controls, 
+                     vcov = vcov_census,
+                     include = c(
+                       "ela_met",
+                       "I(ela_met^2)",
+                       "employment_rate",
+                       "med_income_household",
+                       "health_insurance_rate"
+                     ),
+                     label = list(
+                       ela_met ~ "ELA Met",
+                       `I(ela_met^2)` ~ "ELA Met²",
+                       employment_rate ~ "Employment Rate",
+                       med_income_household ~ "Median Income",
+                       health_insurance_rate ~ "Health Insurance"#,
+                       #`factor(year_test)` ~ "Year Tested"
+                     )) %>%
+  add_glance_table(include = c(r.squared, adj.r.squared, nobs, df.residual))
+
+
+t3 <- tbl_regression(model_edu_controls, 
+                     vcov = vcov_edu,
+                     include = c(
+                       "ela_met",
+                       "I(ela_met^2)",
+                       "bachelor_pct"
+                     ),
+                     label = list(
+                       ela_met ~ "ELA Met",
+                       `I(ela_met^2)` ~ "ELA Met²",
+                       bachelor_pct ~ "Bachelor Degree"#,
+                       #`factor(year_test)` ~ "Year Tested"
+                     )) %>%
+  add_glance_table(include = c(r.squared, adj.r.squared, nobs, df.residual))
+
+# Merge the three tables into one  
+tbl_models <- tbl_merge(
+  tbls = list(t1, t2, t3),
+  tab_spanner = c("ELA Demographics", "Census Statistics", "Education")
+  ) %>%
+  modify_table_body(
+   ~ .x %>%
+     dplyr::arrange(row_type == "glance_statistic")
+  )
+
+# Introduce a blank row to seaprate out the Fit statistics
+tbl_models <- tbl_models %>%
+  modify_table_body(
+    ~ {
+      tb <- .x
+      idx <- which(tb$row_type == "glance_statistic")[1]
+
+      # Create a blank row with correct types
+      blank_row <- tb[idx, ]
+
+      for (col in names(blank_row)) {
+        if (is.character(blank_row[[col]])) {
+          blank_row[[col]] <- NA_character_
+        } else if (is.numeric(blank_row[[col]])) {
+          blank_row[[col]] <- NA_real_
+        } else if (is.integer(blank_row[[col]])) {
+          blank_row[[col]] <- NA_integer_
+        } else {
+          blank_row[[col]] <- NA
+        }
+      }
+
+      blank_row$row_type <- "separator"
+
+      dplyr::bind_rows(
+        tb[1:(idx-1), ],
+        blank_row,
+        tb[idx:nrow(tb), ]
+      )
+    }
+  )
+
+# Convert to Latex for PDF output
+tbl_models %>%
+  as_gt() %>%
+  gt::tab_source_note(
+    source_note = "Year fixed effects included in regression but omitted from the table for readibility."
+  ) %>%
+  gt::tab_options(
+    table.width = gt::pct(100),
+    table.font.size = 10
+  )
+
+
+```
+
+While most variables show p-values of 0.001 or less, the Health Insurance variable (i.e. the percent of the population with health insurance) shows the largest p-value of 0.5, clearly not a significant result. Median Income, though significant with a p-value \<0.001, has a coefficient of less than 0.0016. As income is captured in thousands of dollars, every \$1000 increase in income equates to a 0.16% increase in 4-year college enrollment. The small coefficient and the demonstrated correlation with education (Bachelor Degree) in @fig-correlation, indicates the variable has limited or no value to improving the model.
+
+The low income status of a student taking the SBAC ELA exam provides a coefficient of -0.05. As both enrollment rate and low income status are expressed as ratios, this means a 0.10 (10%) increase in the proportion of low income students taking the exam leads to a 0.005 (0.5%) decrease in college enrollment. Similarly, the rate of Female exam takers also shows a small coefficient at 0.04.
+
+Employment rate and the percentage of the population with a Bachelor degree or higher are the primary variables with both significance (99% CI) in the model and coefficients that most influence the enrollment rate. It is also the census variables, both demographic and education, that show the strongest fit to the data with adjusted R^2^ of 0.483 and 0.650 respectively. However, education data shows the lowest number of observations due to limits in the data provided. Additionally, analysis showed that the inclusion of the education variable appears to counter time-fixed effects, as p-values for individual testing years have no significance in the third model, ranging from 0.0693 to 0.3984.
+
+With the above results, two final regression models are provided in @tbl-regression-final. In each case, I have focused on the most influential control variables: employment rate and bachelor's degree attainment, along with the year-fixed effects. Due to the previously noted results in time-fixed effects when including bachelor's degree attainment, the first regression table includes this control variable and removes year-fixed effects. The second regression table retains all years of SBAC ELA testing and excludes the education variable.
+
+```{r}
+#| label: tbl-regression-final
+#| echo: false
+#| message: false
+#| warning: false
+#| tbl-cap: Regression of Enrollment by SBAC ELA - Final
+#| out-width: "85%"
+
+# ELA Final Model
+
+# Education variable and no time-fixed effects
+model_final_edu <- lm(
+  enrollment_all ~ ela_met + I(ela_met^2) + 
+    employment_rate + #health_insurance_rate + 
+    bachelor_pct,
+  data = dfCapLastGradeAdj
+)
+
+# All years of SBAC ELA testing and not education variable
+model_final_years <- lm(
+  enrollment_all ~ ela_met + I(ela_met^2) + 
+    employment_rate + #health_insurance_rate + 
+    factor(year_test),
+  data = dfCapLastGradeAdj
+)
+
+# Calculate Robust vcov matrices
+vcov_final_edu <- vcovHC(model_final_edu, type = "HC1")
+vcov_final_years <- vcovHC(model_final_years, type = "HC1")
+
+# Build table with education
+tbl_final_edu <- tbl_regression(model_final_edu,
+                                vcov = vcov_final_edu,
+                                se = TRUE,
+                                label = list(
+                                  ela_met ~ "ELA Met",
+                                  `I(ela_met^2)` ~ "ELA Met²",
+                                  employment_rate ~ "Employment Rate",
+                                  #health_insurance_rate ~ "Health Insurance",
+                                  bachelor_pct ~ "Bachelor Degree"
+                                )) %>%
+  add_glance_table(include = c(r.squared, adj.r.squared, nobs, df.residual))
+
+# Build table with ALL years
+tbl_final_years <- tbl_regression(model_final_years,
+                                  vcov = vcov_final_years,
+                                  se = TRUE,
+                                  label = list(
+                                    ela_met ~ "ELA Met",
+                                    `I(ela_met^2)` ~ "ELA Met²",
+                                    employment_rate ~ "Employment Rate",
+                                    #health_insurance_rate ~ "Health Insurance",
+                                    `factor(year_test)` ~ "Year Tested"
+                                  )) %>%
+  add_glance_table(include = c(r.squared, adj.r.squared, nobs, df.residual))
+
+
+# Merge the two tables into one  
+tbl_final <- tbl_merge(
+  tbls = list(tbl_final_edu, tbl_final_years),
+  tab_spanner = c("Education (Bachelor Degree)", "All SBAC ELA Test Years")
+  ) %>%
+  modify_table_body(
+   ~ .x %>%
+     dplyr::arrange(row_type == "glance_statistic")
+  )
+
+# Move Fit statistics to bottom and add blank row above  
+tbl_final <- tbl_final %>%
+  modify_table_body(
+   ~ .x %>% dplyr::arrange(row_type == "glance_statistic")
+  ) %>%
+  # Introduce a blank row to separate out the Fit statistics
+  modify_table_body(
+    ~ {
+      tb <- .x
+      idx <- which(tb$row_type == "glance_statistic")[1]
+
+      # Create a blank row with correct types
+      blank_row <- tb[idx, ]
+
+      for (col in names(blank_row)) {
+        if (is.character(blank_row[[col]])) {
+          blank_row[[col]] <- NA_character_
+        } else if (is.numeric(blank_row[[col]])) {
+          blank_row[[col]] <- NA_real_
+        } else if (is.integer(blank_row[[col]])) {
+          blank_row[[col]] <- NA_integer_
+        } else {
+          blank_row[[col]] <- NA
+        }
+      }
+
+      blank_row$row_type <- "separator"
+
+      dplyr::bind_rows(
+        tb[1:(idx-1), ],
+        blank_row,
+        tb[idx:nrow(tb), ]
+      )
+    }
+  )
+
+# Convert to Latex for PDF output
+tbl_final %>%
+  as_gt() %>%
+  gt::tab_options(
+    table.width = gt::pct(85),
+    table.font.size = 10
+  )
+```
+
+In these final models, ELA Assessment rates continue to show significance with p-values \<0.001. At the same time, both Employment Rate and Bachelor Degree attainment rates within the school districts continue to show low p-values. Year-fixed effects in the second model vary with p-values from 0.027 for ELA testing year 2016 to 0.14 for 2022. Adjusted R^2^ values also indicate a stronger fit for the Education model (0.661) over the Model with Test years (0.447).
+
+As a final assessment of the regression models, multicollinearity was checked using Variance Inflation Factors (VIFs). With the model including time-fixed effects, adjusted VIF results for all predictors were below 2.0 with the exception of the ELA assessment results and its quadratic term (adjusted GVIFs of 8.1 and 8.3 in the model with bachelor degree attainment, adjusted GVIFs of 5.2 and 5.4 in the model with time-fixed effects). This is expected due to the polynomial relationship between the terms. Based on this analysis, the model remains robust for prediction of college enrollment.
+
+# Discussion and Conclusion
+
+The findings of this article indicate that SBAC ELA assessment rates across school districts can be used as a tool to measure expected college enrollment rates in those districts for 4-year colleges in Washington State. ELA assessment rates, however, need to be considered in conjunction with several socioeconomic and demographic variables. The research here indicates income, employment, and family education are also important considerations, supported by @Geiser2007, @Jackson2005, @Savolainen2008, @Westall2023, and @Hernandez2011.
+
+There are, inevitably, an unlimited range of variables that can influence both the results of standardized tests and the likelihood of enrollment in college. It is not possible for any analysis of this type to consider every control. Additional demographics considered by @Talwar2022, @James2024, @Ozek2025 and @Westall2023 include race/ethnicity as well the percentage of students where English is not their first language. Recommended further research on this topic should also include parents' occupation [@Savolainen2008]. A significant factor, as seen in this analysis, is parents' education [@Geiser2007; @Jackson2005; @James2024]. Using the percentage of a population within a school district with a Bachelor's degree or higher as a proxy, this one variable substantially increases the outcome of enrollment rates, indicating a continued thread from generation to generation. Important to increasing enrollment will be finding the means to encourage the skills outside of this generational influence.
+
+As Washington state and the Washington Student Achievement Council work towards executing against the 2026 Strategic Action Plan [@WSAC2026Plan], knowing where students are at with skill achievement is a critical first step. Just knowing the numbers, however, is not enough. We need to understand how those numbers impact the stated goals. With a defined relationship between assessment and enrollment, WSAC and state legislators can work toward ensuring all districts receive the funding and resources necessary. Standardized testing through the SBAC or similar systems are only one mechanism for monitoring literacy achievement within a school district. There may be alternative means of monitoring progress in student literacy capabilities through secondary education. However, in lieu of a more developed solution, the SBAC standardized tests provide the best option available in Washington school districts at this time.
+
+An important gap in the current research is understanding enrollment in two-year colleges and technical schools. This information is available from the enrollment data accessed through the Washington Open Data Portal and would provide a more complete view of student enrollment after secondary school within the state. Because WSAC goals are specifically related to college enrollment, targeting 70% of graduates, this research specifically excluded students enrolling in the military after high school and students gaining employment at or above median income rates. Both perspectives would provide meaningful information on student outcomes from ELA achievement.
+
+Additionally, this research focused on a point in time for student literacy achievement, specifically the results of SBAC tests taken toward the end of their secondary education. Literacy is a skill set that is established early and encouraged throughout a school experience. Student trends from grade to grade need to be considered to understand if the earliest skills assessments or later assessments are more indicative of future success in a post-secondary experience.
+
+Despite these opportunities for improvement, closer evaluation of SBAC ELA results can provide helpful insight into both the success of literary programs in Washington schools, as well as success in increasing rates of college enrollment across all school districts. To support the entire secondary school population, school administrators need to look beyond traditional college preparatory programs for more opportunities to encourage student enrollment. Establishing a strong base in literacy skills is essential to building that encouragement, and measuring achievement is one of many tools for identifying opportunities.
+
+# References
